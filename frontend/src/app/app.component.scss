@@ -1,0 +1,113 @@
+:host {
+  display: block;
+  height: 100%;
+}
+
+.app-shell {
+  height: 100%;
+  background: #f4f6fb;
+}
+
+.app-sidenav {
+  width: 264px;
+  display: flex;
+  flex-direction: column;
+  background: #171e29;
+  color: rgba(255, 255, 255, 0.87);
+  border-right: none;
+
+  ::ng-deep .mat-mdc-list-item {
+    color: rgba(255, 255, 255, 0.68);
+    border-radius: var(--radius-sm);
+    margin: 2px 12px;
+    width: auto;
+    height: 42px;
+    transition: background-color 0.15s ease, color 0.15s ease;
+  }
+
+  ::ng-deep .mat-mdc-list-item:hover {
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.92);
+  }
+
+  ::ng-deep .mat-mdc-list-item .mdc-list-item__primary-text {
+    color: inherit;
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+
+  ::ng-deep .mat-icon {
+    color: rgba(255, 255, 255, 0.5);
+  }
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 22px 20px;
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: #fff;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  margin-bottom: 8px;
+
+  mat-icon {
+    color: #6ea8fe;
+  }
+}
+
+.nav-section-label {
+  padding: 18px 24px 6px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.32);
+}
+
+::ng-deep .app-sidenav .active-link {
+  background: rgba(110, 168, 254, 0.16) !important;
+
+  .mat-icon {
+    color: #6ea8fe !important;
+  }
+
+  .mdc-list-item__primary-text {
+    color: #fff !important;
+    font-weight: 600 !important;
+  }
+}
+
+.app-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  height: 64px;
+  background: #fff;
+  color: var(--color-text-primary);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.topbar-title {
+  margin-left: 8px;
+  font-size: 1.02rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.app-content {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 28px 24px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+@media (max-width: 599px) {
+  .app-content {
+    padding: 18px 16px 32px;
+  }
+}

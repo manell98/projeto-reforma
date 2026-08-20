@@ -1,0 +1,76 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Categorias de gasto da reforma. Enum fixo (não uma tabela própria) porque a
+// lista é um domínio fechado definido pelo produto, não um cadastro do usuário.
+enum Categoria {
+  ELETRODOMESTICOS
+  MATERIAIS
+  PEDREIRO
+  ELETRICISTA
+  MARCENEIRO
+  MARMOREIRO
+  SERRALHEIRO
+  VIDRACEIRO
+  LADRILHEIRO
+  INSTALADOR_PORTA
+  TIO_NEGUINHO
+  ALUGUEL_MATERIAIS
+  REMOCAO_ENTULHO
+  ARQUITETO
+  OUTROS
+}
+
+model Expense {
+  id          String    @id @default(uuid())
+  valor       Decimal   @db.Decimal(12, 2)
+  descricao   String
+  categoria   Categoria
+  data        DateTime  @db.Date
+  observacao  String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([data])
+  @@index([categoria])
+  @@map("expenses")
+}
+
+// Orçamento geral da reforma e cinco orçamentos específicos (Pedreiro,
+// Eletricista, Tio Neguinho, Marceneiro, Marmoreiro), cada um uma linha única
+// identificada por `tipo`. Os valores destinados aos cinco específicos
+// representam dinheiro RESERVADO dentro do orçamento geral — não são
+// despesas. Os gastos efetivos de cada um vêm das próprias `Expense` cuja
+// `categoria` bate com o tipo, sem CRUD próprio: ver `ExpensesModule`.
+enum OrcamentoTipo {
+  GERAL
+  PEDREIRO
+  ELETRICISTA
+  TIO_NEGUINHO
+  MARCENEIRO
+  MARMOREIRO
+}
+
+model Orcamento {
+  tipo      OrcamentoTipo @id
+  valor     Decimal       @db.Decimal(12, 2)
+  updatedAt DateTime      @updatedAt
+
+  @@map("orcamento")
+}
+
+// Linha única com as datas de início/término da obra.
+model Obra {
+  id          Int       @id @default(1)
+  dataInicio  DateTime? @db.Date
+  dataTermino DateTime? @db.Date
+  updatedAt   DateTime  @updatedAt
+
+  @@map("obra")
+}

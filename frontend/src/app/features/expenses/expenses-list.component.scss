@@ -1,0 +1,11 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}

@@ -1,0 +1,67 @@
+<mat-card
+  class="duracao-card"
+  [class.em-andamento]="store.statusObra() === 'em-andamento'"
+  [class.finalizada]="store.statusObra() === 'finalizada'"
+>
+  @if (store.statusObra() === 'sem-inicio') {
+    <mat-card-content class="empty-state">
+      <mat-icon>event</mat-icon>
+      <p>A data de início da obra ainda não foi definida.</p>
+      <a mat-flat-button color="primary" routerLink="/configuracoes/obra"
+        >Definir data de início</a
+      >
+    </mat-card-content>
+  } @else {
+    <mat-card-content>
+      <div class="duracao-heading">
+        <div class="duracao-title">
+          <span
+            class="icon-badge"
+            [class.success]="store.statusObra() === 'em-andamento'"
+            [class.info]="store.statusObra() === 'finalizada'"
+          >
+            <mat-icon>event</mat-icon>
+          </span>
+          <div>
+            <span class="duracao-title-label">Duração da obra</span>
+            <div class="duracao-principal">
+              <span class="duracao-dias">{{ store.duracaoObraDias() }} dias</span>
+              <span class="duracao-amigavel">({{ store.duracaoObraTexto() }})</span>
+            </div>
+          </div>
+        </div>
+        <span
+          class="status-pill"
+          [class.ok]="store.statusObra() === 'em-andamento'"
+          [class.info]="store.statusObra() === 'finalizada'"
+        >
+          <span class="dot"></span>
+          {{
+            store.statusObra() === 'em-andamento'
+              ? 'Em andamento'
+              : 'Finalizada'
+          }}
+        </span>
+      </div>
+
+      <div class="duracao-datas">
+        <span
+          >Início:
+          {{
+            store.obra().dataInicio
+              | date: 'dd/MM/yyyy' : 'UTC' : 'pt-BR'
+          }}</span
+        >
+        @if (store.statusObra() === 'finalizada') {
+          <span
+            >Término:
+            {{
+              store.obra().dataTermino
+                | date: 'dd/MM/yyyy' : 'UTC' : 'pt-BR'
+            }}</span
+          >
+        }
+      </div>
+    </mat-card-content>
+  }
+</mat-card>

@@ -1,0 +1,70 @@
+<mat-sidenav-container class="app-shell">
+  <mat-sidenav
+    class="app-sidenav"
+    [mode]="modoOverlay() ? 'over' : 'side'"
+    [opened]="sidenavAberta()"
+    (openedChange)="sidenavAberta.set($event)"
+  >
+    <div class="brand">
+      <mat-icon>home_repair_service</mat-icon>
+      <span>Reforma</span>
+    </div>
+
+    <mat-nav-list>
+      <a
+        mat-list-item
+        routerLink="/dashboard"
+        routerLinkActive="active-link"
+        (click)="fecharSidenavSeOverlay()"
+      >
+        <mat-icon matListItemIcon>dashboard</mat-icon>
+        <span matListItemTitle>Visão geral</span>
+      </a>
+
+      <div class="nav-section-label">Despesas</div>
+      <a
+        mat-list-item
+        routerLink="/despesas"
+        routerLinkActive="active-link"
+        [routerLinkActiveOptions]="{ exact: true }"
+        (click)="fecharSidenavSeOverlay()"
+      >
+        <mat-icon matListItemIcon>list_alt</mat-icon>
+        <span matListItemTitle>Listar despesas</span>
+      </a>
+
+      <div class="nav-section-label">Configurações</div>
+      <a
+        mat-list-item
+        routerLink="/configuracoes/orcamento"
+        routerLinkActive="active-link"
+        (click)="fecharSidenavSeOverlay()"
+      >
+        <mat-icon matListItemIcon>account_balance_wallet</mat-icon>
+        <span matListItemTitle>Orçamento</span>
+      </a>
+      <a
+        mat-list-item
+        routerLink="/configuracoes/obra"
+        routerLinkActive="active-link"
+        (click)="fecharSidenavSeOverlay()"
+      >
+        <mat-icon matListItemIcon>event</mat-icon>
+        <span matListItemTitle>Obra</span>
+      </a>
+    </mat-nav-list>
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+    <mat-toolbar class="app-topbar">
+      <button mat-icon-button (click)="alternarSidenav()">
+        <mat-icon>menu</mat-icon>
+      </button>
+      <span class="topbar-title">Controle de Gastos da Reforma</span>
+    </mat-toolbar>
+
+    <main class="app-content">
+      <router-outlet />
+    </main>
+  </mat-sidenav-content>
+</mat-sidenav-container>

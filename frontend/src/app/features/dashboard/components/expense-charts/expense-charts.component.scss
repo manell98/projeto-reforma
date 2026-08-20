@@ -1,0 +1,79 @@
+.charts-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(320px, 1fr));
+  gap: 16px;
+}
+
+.chart-card-wide {
+  grid-column: span 2;
+}
+
+@media (max-width: 900px) {
+  .charts-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .chart-card-wide {
+    grid-column: span 1;
+  }
+}
+
+.charts-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 40px 16px;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.lista-vazia {
+  text-align: center;
+  padding: 24px;
+  color: rgba(0, 0, 0, 0.6);
+  margin: 0;
+}
+
+.ultimas-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.ultima-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 4px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.ultima-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.ultima-descricao {
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ultima-meta {
+  font-size: 0.75rem;
+  color: rgba(0, 0, 0, 0.55);
+}
+
+.ultima-valor {
+  font-weight: 600;
+  white-space: nowrap;
+  margin-left: 12px;
+}

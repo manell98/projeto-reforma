@@ -1,0 +1,47 @@
+.table-wrapper {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+}
+
+.col-valor {
+  text-align: right;
+}
+
+.col-acoes {
+  width: 96px;
+  text-align: right;
+}
+
+.descricao-principal {
+  display: block;
+  font-weight: 500;
+}
+
+.descricao-obs {
+  display: block;
+  font-size: 0.75rem;
+  color: rgba(0, 0, 0, 0.55);
+}
+
+.table-status {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 40px 16px;
+  color: rgba(0, 0, 0, 0.6);
+  text-align: center;
+
+  mat-icon {
+    font-size: 32px;
+    width: 32px;
+    height: 32px;
+  }
+
+  &.error {
+    color: #c62828;
+  }
+}

@@ -1,0 +1,33 @@
+.filters-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+}
+
+.field-descricao {
+  flex: 1 1 220px;
+}
+
+.field-categoria {
+  flex: 1 1 200px;
+}
+
+.field-data {
+  flex: 1 1 140px;
+}
+
+.filters-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-top: 8px;
+  flex: 0 0 auto;
+
+  button[type='submit'] {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+}

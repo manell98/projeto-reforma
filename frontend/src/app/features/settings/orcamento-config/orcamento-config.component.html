@@ -1,0 +1,119 @@
+<div class="page-header">
+  <div>
+    <h1>Orçamento</h1>
+    <p class="page-subtitle">
+      Orçamento geral da reforma e orçamentos específicos por responsável
+    </p>
+  </div>
+</div>
+
+<mat-card class="orcamento-card geral" [class.excedido]="store.orcamentoExcedido()">
+  <mat-card-header>
+    <mat-card-title>Orçamento geral</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <form [formGroup]="form" (ngSubmit)="salvar()" class="form-orcamento">
+      <mat-form-field appearance="outline" class="campo-orcamento">
+        <mat-label>Orçamento inicial da reforma</mat-label>
+        <span matTextPrefix>R$&nbsp;</span>
+        <input
+          matInput
+          type="text"
+          inputmode="decimal"
+          appMoedaInput
+          formControlName="valor"
+          placeholder="100.000,00"
+        />
+        @if (form.controls.valor.hasError('required')) {
+          <mat-error>Informe o valor do orçamento.</mat-error>
+        }
+      </mat-form-field>
+
+      <button
+        mat-flat-button
+        color="primary"
+        type="submit"
+        [disabled]="salvando()"
+      >
+        <mat-icon>save</mat-icon>
+        {{ salvando() ? 'Salvando...' : 'Salvar' }}
+      </button>
+    </form>
+
+    @if (store.orcamentoConfigurado()) {
+      <div class="indicadores-grid">
+        <div class="indicador">
+          <span class="indicador-label">Orçamento inicial</span>
+          <span class="indicador-valor">{{
+            store.orcamento() | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR'
+          }}</span>
+        </div>
+        <div class="indicador">
+          <span class="indicador-label">Total comprometido</span>
+          <span class="indicador-valor">{{
+            store.totalComprometido()
+              | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR'
+          }}</span>
+        </div>
+        <div class="indicador">
+          <span class="indicador-label">Total gasto</span>
+          <span class="indicador-valor">{{
+            store.totalGasto()
+              | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR'
+          }}</span>
+        </div>
+        <div class="indicador">
+          <span class="indicador-label">Saldo</span>
+          <span
+            class="indicador-valor"
+            [class.negativo]="store.saldo() < 0"
+            >{{
+              store.saldo() | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR'
+            }}</span
+          >
+        </div>
+        <div class="indicador">
+          <span class="indicador-label">% consumido</span>
+          <span
+            class="indicador-valor"
+            [class.negativo]="store.orcamentoExcedido()"
+            >{{ store.percentualConsumido() | number: '1.0-1' }}%</span
+          >
+        </div>
+      </div>
+
+      <mat-progress-bar
+        class="barra-progresso"
+        [value]="progresso()"
+        [color]="store.orcamentoExcedido() ? 'warn' : 'primary'"
+      />
+
+      @if (store.orcamentoExcedido()) {
+        <div class="alerta-excedido">
+          <mat-icon>warning</mat-icon>
+          <span
+            >Orçamento excedido em
+            {{
+              valorExcedente() | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR'
+            }}</span
+          >
+        </div>
+      }
+    }
+  </mat-card-content>
+</mat-card>
+
+<p class="dica-especificos">
+  Os gastos de Pedreiro, Eletricista, Tio Neguinho, Marceneiro e Marmoreiro
+  são cadastrados pela tela de <strong>Despesas</strong>, escolhendo a
+  categoria correspondente — aqui você só define o orçamento (limite) de cada
+  um.
+</p>
+
+<div class="especificos-grid">
+  <app-orcamento-especifico-panel tipo="PEDREIRO" />
+  <app-orcamento-especifico-panel tipo="ELETRICISTA" />
+  <app-orcamento-especifico-panel tipo="TIO_NEGUINHO" />
+  <app-orcamento-especifico-panel tipo="MARCENEIRO" />
+  <app-orcamento-especifico-panel tipo="MARMOREIRO" />
+</div>

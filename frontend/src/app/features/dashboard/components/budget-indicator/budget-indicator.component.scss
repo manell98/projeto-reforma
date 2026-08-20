@@ -1,0 +1,35 @@
+.budget-card {
+  transition: box-shadow 0.2s ease;
+}
+
+.budget-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.budget-title {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.budget-title-label {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  margin-bottom: 2px;
+}
+
+.metric-hero {
+  gap: 0;
+}
+
+.budget-secondary-metrics {
+  padding-top: 14px;
+  border-top: 1px solid var(--color-border);
+}

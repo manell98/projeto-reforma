@@ -1,0 +1,37 @@
+<div class="page-header">
+  <div>
+    <h1>Obra</h1>
+    <p class="page-subtitle">Datas de início e término da reforma</p>
+  </div>
+</div>
+
+<mat-card class="obra-card">
+  <mat-card-content>
+    <form [formGroup]="form" (ngSubmit)="salvar()" class="obra-form">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Data de início da obra</mat-label>
+        <input matInput [matDatepicker]="pickerInicio" formControlName="dataInicio" />
+        <mat-datepicker-toggle matIconSuffix [for]="pickerInicio" />
+        <mat-datepicker #pickerInicio />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Data de término da obra (opcional)</mat-label>
+        <input matInput [matDatepicker]="pickerTermino" formControlName="dataTermino" />
+        <mat-datepicker-toggle matIconSuffix [for]="pickerTermino" />
+        <mat-datepicker #pickerTermino />
+        <mat-hint>Deixe em branco enquanto a obra estiver em andamento.</mat-hint>
+      </mat-form-field>
+
+      <button
+        mat-flat-button
+        color="primary"
+        type="submit"
+        [disabled]="salvando()"
+      >
+        <mat-icon>save</mat-icon>
+        {{ salvando() ? 'Salvando...' : 'Salvar' }}
+      </button>
+    </form>
+  </mat-card-content>
+</mat-card>

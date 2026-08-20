@@ -1,0 +1,23 @@
+# Dependências
+node_modules/
+
+# Builds
+dist/
+out-tsc/
+.angular/
+
+# Ambiente
+.env
+.env.local
+
+# Logs
+*.log
+npm-debug.log*
+
+# Editor / SO
+.DS_Store
+.vscode/
+.idea/
+
+# Cobertura de testes
+coverage/

@@ -1,0 +1,90 @@
+<mat-card
+  class="budget-card"
+  [class.budget-exceeded]="store.orcamentoExcedido()"
+>
+  @if (!store.orcamentoConfigurado()) {
+    <mat-card-content class="empty-state">
+      <mat-icon>account_balance_wallet</mat-icon>
+      <p>Nenhum orçamento inicial foi definido para a reforma ainda.</p>
+      <a mat-flat-button color="primary" routerLink="/configuracoes/orcamento"
+        >Definir orçamento</a
+      >
+    </mat-card-content>
+  } @else {
+    <mat-card-content>
+      <div class="budget-heading">
+        <div class="budget-title">
+          <span class="icon-badge" [class.danger]="store.orcamentoExcedido()">
+            <mat-icon>account_balance_wallet</mat-icon>
+          </span>
+          <div>
+            <span class="budget-title-label">Orçamento geral da reforma</span>
+            <div class="metric metric-hero">
+              <span class="metric-label">Saldo disponível</span>
+              <span
+                class="metric-value is-hero"
+                [class.is-negative]="store.saldo() < 0"
+                >{{
+                  store.saldo() | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR'
+                }}</span
+              >
+            </div>
+          </div>
+        </div>
+        <span class="status-pill" [class.ok]="!store.orcamentoExcedido()" [class.danger]="store.orcamentoExcedido()">
+          <span class="dot"></span>
+          {{ store.orcamentoExcedido() ? 'Orçamento excedido' : 'Dentro do orçamento' }}
+        </span>
+      </div>
+
+      <div class="metrics-grid budget-secondary-metrics">
+        <div class="metric">
+          <span class="metric-label">Orçamento inicial</span>
+          <span class="metric-value">{{
+            store.orcamento() | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR'
+          }}</span>
+        </div>
+        <div class="metric">
+          <span class="metric-label">Total comprometido</span>
+          <span class="metric-value">{{
+            store.totalComprometido()
+              | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR'
+          }}</span>
+        </div>
+        <div class="metric">
+          <span class="metric-label">Total gasto</span>
+          <span class="metric-value">{{
+            store.totalGasto()
+              | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR'
+          }}</span>
+        </div>
+        <div class="metric">
+          <span class="metric-label">% consumido</span>
+          <span
+            class="metric-value"
+            [class.is-negative]="store.orcamentoExcedido()"
+            >{{ store.percentualConsumido() | number: '1.0-1' }}%</span
+          >
+        </div>
+      </div>
+
+      <mat-progress-bar
+        class="budget-progress"
+        [value]="progresso()"
+        [color]="store.orcamentoExcedido() ? 'warn' : 'primary'"
+      />
+
+      @if (store.orcamentoExcedido()) {
+        <div class="budget-alert">
+          <mat-icon>warning</mat-icon>
+          <span
+            >Orçamento excedido em
+            {{
+              valorExcedente() | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR'
+            }}</span
+          >
+        </div>
+      }
+    </mat-card-content>
+  }
+</mat-card>

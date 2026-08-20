@@ -1,0 +1,45 @@
+<div class="cards-grid">
+  <mat-card class="summary-card">
+    <span class="icon-badge">
+      <mat-icon>receipt_long</mat-icon>
+    </span>
+    <div class="card-body">
+      <span class="card-label">Quantidade de despesas</span>
+      <span class="card-value">{{ store.quantidadeDespesas() }}</span>
+    </div>
+  </mat-card>
+
+  <mat-card class="summary-card">
+    <span class="icon-badge">
+      <mat-icon>trending_up</mat-icon>
+    </span>
+    <div class="card-body">
+      <span class="card-label">Maior despesa</span>
+      @if (store.maiorDespesa(); as maior) {
+        <span class="card-value">{{
+          maior.valor | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR'
+        }}</span>
+        <span class="card-hint">{{ maior.descricao }}</span>
+      } @else {
+        <span class="card-value">—</span>
+      }
+    </div>
+  </mat-card>
+
+  <mat-card class="summary-card">
+    <span class="icon-badge">
+      <mat-icon>category</mat-icon>
+    </span>
+    <div class="card-body">
+      <span class="card-label">Categoria que mais consumiu</span>
+      @if (store.categoriaQueMaisGastou(); as top) {
+        <span class="card-value">{{ top.label }}</span>
+        <span class="card-hint">{{
+          top.total | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR'
+        }}</span>
+      } @else {
+        <span class="card-value">—</span>
+      }
+    </div>
+  </mat-card>
+</div>

@@ -1,0 +1,22 @@
+<div class="page-header">
+  <div>
+    <h1>Despesas</h1>
+    <p class="page-subtitle">Cadastre, edite e acompanhe os gastos da reforma</p>
+  </div>
+  <button mat-flat-button color="primary" (click)="novaDespesa()">
+    <mat-icon>add</mat-icon>
+    Adicionar despesa
+  </button>
+</div>
+
+<app-expense-filters
+  [categorias]="store.categorias()"
+  [filtrosAtivos]="temFiltrosAtivos()"
+  (filtrar)="aplicarFiltros($event)"
+  (limpar)="limparFiltros()"
+/>
+
+<app-expense-table
+  [despesas]="despesasFiltradas()"
+  [filtrosAtivos]="temFiltrosAtivos()"
+/>

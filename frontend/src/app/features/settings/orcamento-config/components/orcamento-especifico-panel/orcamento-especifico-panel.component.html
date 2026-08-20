@@ -1,0 +1,96 @@
+<mat-card class="painel-card" [class.excedido]="excedido()">
+  <mat-card-content>
+    <div class="painel-heading">
+      <div class="painel-title">
+        <span class="icon-badge" [class.danger]="orcamentoConfigurado() && excedido()" [class.success]="orcamentoConfigurado() && !excedido()">
+          <mat-icon>engineering</mat-icon>
+        </span>
+        <span class="painel-title-label">{{ titulo() }}</span>
+      </div>
+      @if (orcamentoConfigurado()) {
+        <span class="status-pill" [class.ok]="!excedido()" [class.danger]="excedido()">
+          <span class="dot"></span>
+          {{ excedido() ? 'Excedido' : 'Em dia' }}
+        </span>
+      }
+    </div>
+
+    @if (editavel()) {
+      <form [formGroup]="formOrcamento" (ngSubmit)="salvarOrcamento()" class="form-orcamento">
+        <mat-form-field appearance="outline" class="campo-orcamento">
+          <mat-label>Orçamento — {{ titulo() }}</mat-label>
+          <span matTextPrefix>R$&nbsp;</span>
+          <input
+            matInput
+            type="text"
+            inputmode="decimal"
+            appMoedaInput
+            formControlName="valor"
+            placeholder="0,00"
+          />
+          @if (formOrcamento.controls.valor.hasError('required')) {
+            <mat-error>Informe o orçamento.</mat-error>
+          }
+        </mat-form-field>
+        <button
+          mat-flat-button
+          color="primary"
+          type="submit"
+          [disabled]="salvandoOrcamento()"
+        >
+          <mat-icon>save</mat-icon>
+          {{ salvandoOrcamento() ? 'Salvando...' : 'Salvar' }}
+        </button>
+      </form>
+    }
+
+    @if (orcamentoConfigurado()) {
+      <div class="metrics-grid">
+        <div class="metric">
+          <span class="metric-label">Orçamento</span>
+          <span class="metric-value">{{
+            orcamento() | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR'
+          }}</span>
+        </div>
+        <div class="metric">
+          <span class="metric-label">Total gasto</span>
+          <span class="metric-value">{{
+            totalGasto() | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR'
+          }}</span>
+        </div>
+        <div class="metric">
+          <span class="metric-label">Saldo</span>
+          <span class="metric-value" [class.is-negative]="saldo() < 0">{{
+            saldo() | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR'
+          }}</span>
+        </div>
+        <div class="metric">
+          <span class="metric-label">% consumido</span>
+          <span class="metric-value" [class.is-negative]="excedido()"
+            >{{ percentualConsumido() | number: '1.0-1' }}%</span
+          >
+        </div>
+      </div>
+
+      <mat-progress-bar
+        class="budget-progress"
+        [value]="progresso()"
+        [color]="excedido() ? 'warn' : 'primary'"
+      />
+
+      @if (excedido()) {
+        <div class="budget-alert">
+          <mat-icon>warning</mat-icon>
+          <span
+            >Orçamento excedido em
+            {{
+              valorExcedente() | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR'
+            }}</span
+          >
+        </div>
+      }
+    } @else if (!editavel()) {
+      <p class="sem-orcamento">Nenhum orçamento definido para {{ titulo() }} ainda.</p>
+    }
+  </mat-card-content>
+</mat-card>

@@ -1,0 +1,95 @@
+<mat-card class="table-card">
+  <mat-card-header>
+    <mat-card-title>Despesas cadastradas</mat-card-title>
+  </mat-card-header>
+
+  <mat-card-content>
+    @if (store.loading()) {
+      <div class="table-status">
+        <mat-spinner diameter="32" />
+        <span>Carregando despesas...</span>
+      </div>
+    } @else if (store.error()) {
+      <div class="table-status error">
+        <mat-icon>error_outline</mat-icon>
+        <span>{{ store.error() }}</span>
+        <button mat-button color="primary" (click)="store.carregarDespesas()">
+          Tentar novamente
+        </button>
+      </div>
+    } @else if (despesas().length === 0) {
+      <div class="table-status">
+        <mat-icon>inbox</mat-icon>
+        @if (filtrosAtivos()) {
+          <span>Nenhuma despesa encontrada para os filtros aplicados.</span>
+        } @else {
+          <span
+            >Nenhuma despesa cadastrada ainda. Clique em "Adicionar despesa"
+            para começar.</span
+          >
+        }
+      </div>
+    } @else {
+      <div class="table-wrapper">
+        <table mat-table [dataSource]="despesas()">
+          <ng-container matColumnDef="data">
+            <th mat-header-cell *matHeaderCellDef>Data</th>
+            <td mat-cell *matCellDef="let despesa">
+              {{ despesa.data | date: 'dd/MM/yyyy' : 'UTC' : 'pt-BR' }}
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="descricao">
+            <th mat-header-cell *matHeaderCellDef>Descrição</th>
+            <td mat-cell *matCellDef="let despesa">
+              <span class="descricao-principal">{{ despesa.descricao }}</span>
+              @if (despesa.observacao) {
+                <span class="descricao-obs">{{ despesa.observacao }}</span>
+              }
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="categoria">
+            <th mat-header-cell *matHeaderCellDef>Categoria</th>
+            <td mat-cell *matCellDef="let despesa">
+              {{ store.categoriaLabels().get(despesa.categoria) }}
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="valor">
+            <th mat-header-cell *matHeaderCellDef class="col-valor">Valor</th>
+            <td mat-cell *matCellDef="let despesa" class="col-valor">
+              {{
+                despesa.valor | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR'
+              }}
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="acoes">
+            <th mat-header-cell *matHeaderCellDef class="col-acoes"></th>
+            <td mat-cell *matCellDef="let despesa" class="col-acoes">
+              <button
+                mat-icon-button
+                matTooltip="Editar"
+                (click)="editar(despesa)"
+              >
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button
+                mat-icon-button
+                matTooltip="Excluir"
+                color="warn"
+                (click)="excluir(despesa)"
+              >
+                <mat-icon>delete</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="colunas"></tr>
+          <tr mat-row *matRowDef="let row; columns: colunas"></tr>
+        </table>
+      </div>
+    }
+  </mat-card-content>
+</mat-card>

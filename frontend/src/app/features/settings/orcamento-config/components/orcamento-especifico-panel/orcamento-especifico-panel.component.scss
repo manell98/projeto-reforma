@@ -1,0 +1,54 @@
+.painel-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.painel-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+// Reserva sempre o espaço de duas linhas para o título, independente do
+// tamanho do nome (ex: "Tio Neguinho (responsável pela obra)" quebra em
+// duas linhas, os demais em uma só) — sem isso o conteúdo abaixo do título
+// começa em alturas diferentes entre os cards de um mesmo grid.
+.painel-title-label {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  font-weight: 700;
+  font-size: 0.95rem;
+  line-height: 1.3;
+  color: var(--color-text-primary);
+}
+
+.form-orcamento {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+
+  button {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 4px;
+  }
+}
+
+.campo-orcamento {
+  flex: 1 1 260px;
+}
+
+.sem-orcamento {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: 0.88rem;
+}

@@ -1,0 +1,18 @@
+<div class="page-header">
+  <h1>Dashboard</h1>
+  <p class="page-subtitle">Visão geral dos gastos da reforma</p>
+</div>
+
+<app-budget-indicator />
+
+<div class="especificos-grid">
+  <app-orcamento-especifico-panel tipo="PEDREIRO" [editavel]="false" />
+  <app-orcamento-especifico-panel tipo="ELETRICISTA" [editavel]="false" />
+  <app-orcamento-especifico-panel tipo="TIO_NEGUINHO" [editavel]="false" />
+  <app-orcamento-especifico-panel tipo="MARCENEIRO" [editavel]="false" />
+  <app-orcamento-especifico-panel tipo="MARMOREIRO" [editavel]="false" />
+</div>
+
+<app-duracao-obra-card />
+<app-summary-cards />
+<app-expense-charts />

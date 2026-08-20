@@ -1,0 +1,81 @@
+<h2 mat-dialog-title>{{ editando ? 'Editar despesa' : 'Nova despesa' }}</h2>
+
+<form [formGroup]="form" (ngSubmit)="salvar()">
+  <mat-dialog-content class="form-content">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Valor</mat-label>
+      <span matTextPrefix>R$&nbsp;</span>
+      <input
+        matInput
+        type="text"
+        inputmode="decimal"
+        appMoedaInput
+        formControlName="valor"
+        placeholder="0,00"
+      />
+      @if (form.controls.valor.hasError('required')) {
+        <mat-error>Informe o valor gasto.</mat-error>
+      } @else if (form.controls.valor.hasError('min')) {
+        <mat-error>O valor deve ser maior que zero.</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Descrição</mat-label>
+      <input
+        matInput
+        formControlName="descricao"
+        placeholder="Ex: Sacos de cimento"
+        maxlength="200"
+      />
+      @if (form.controls.descricao.hasError('required')) {
+        <mat-error>Informe uma descrição.</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Categoria</mat-label>
+      <mat-select formControlName="categoria">
+        @for (categoria of data.categorias; track categoria.valor) {
+          <mat-option [value]="categoria.valor">{{
+            categoria.label
+          }}</mat-option>
+        }
+      </mat-select>
+      @if (form.controls.categoria.hasError('required')) {
+        <mat-error>Selecione uma categoria.</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Data</mat-label>
+      <input
+        matInput
+        [matDatepicker]="picker"
+        formControlName="data"
+      />
+      <mat-datepicker-toggle matIconSuffix [for]="picker" />
+      <mat-datepicker #picker />
+      @if (form.controls.data.hasError('required')) {
+        <mat-error>Informe a data do gasto.</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Observação (opcional)</mat-label>
+      <textarea
+        matInput
+        formControlName="observacao"
+        rows="2"
+        placeholder="Detalhes adicionais, forma de pagamento, fornecedor..."
+      ></textarea>
+    </mat-form-field>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" (click)="cancelar()">Cancelar</button>
+    <button mat-flat-button color="primary" type="submit">
+      {{ editando ? 'Salvar alterações' : 'Cadastrar despesa' }}
+    </button>
+  </mat-dialog-actions>
+</form>

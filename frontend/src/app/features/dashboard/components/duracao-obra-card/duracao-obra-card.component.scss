@@ -1,0 +1,49 @@
+.duracao-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.duracao-title {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.duracao-title-label {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  margin-bottom: 2px;
+}
+
+.duracao-principal {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.duracao-dias {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.duracao-amigavel {
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+}
+
+.duracao-datas {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+  padding-top: 12px;
+  border-top: 1px solid var(--color-border);
+}

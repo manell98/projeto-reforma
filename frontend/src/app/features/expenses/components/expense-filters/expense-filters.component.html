@@ -1,0 +1,47 @@
+<mat-card>
+<form [formGroup]="form" class="filters-form" (ngSubmit)="aplicar()">
+  <mat-form-field appearance="outline" class="field-descricao">
+    <mat-label>Buscar por descrição</mat-label>
+    <input matInput formControlName="descricao" placeholder="Ex: cimento" />
+    <mat-icon matIconSuffix>search</mat-icon>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="field-categoria">
+    <mat-label>Categoria</mat-label>
+    <mat-select formControlName="categoria">
+      <mat-option [value]="null">Todas as categorias</mat-option>
+      @for (categoria of categorias(); track categoria.valor) {
+        <mat-option [value]="categoria.valor">{{
+          categoria.label
+        }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="field-data">
+    <mat-label>De</mat-label>
+    <input matInput [matDatepicker]="pickerInicio" formControlName="dataInicio" />
+    <mat-datepicker-toggle matIconSuffix [for]="pickerInicio" />
+    <mat-datepicker #pickerInicio />
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="field-data">
+    <mat-label>Até</mat-label>
+    <input matInput [matDatepicker]="pickerFim" formControlName="dataFim" />
+    <mat-datepicker-toggle matIconSuffix [for]="pickerFim" />
+    <mat-datepicker #pickerFim />
+  </mat-form-field>
+
+  <div class="filters-actions">
+    <button mat-flat-button color="primary" type="submit">
+      <mat-icon>filter_alt</mat-icon>
+      Filtrar
+    </button>
+    @if (filtrosAtivos()) {
+      <button mat-button type="button" (click)="limparFiltros()">
+        Limpar filtros
+      </button>
+    }
+  </div>
+</form>
+</mat-card>
