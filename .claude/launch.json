@@ -6,6 +6,12 @@
       "runtimeExecutable": "npm",
       "runtimeArgs": ["start", "--prefix", "frontend"],
       "port": 4200
+    },
+    {
+      "name": "reforma-backend",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "start:dev", "--prefix", "backend"],
+      "port": 3000
     }
   ]
 }
