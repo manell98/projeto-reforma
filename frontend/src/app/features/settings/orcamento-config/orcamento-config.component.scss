@@ -4,13 +4,25 @@
   gap: 20px;
 }
 
-.orcamento-card.geral {
-  border-left: 6px solid #2e7d32;
-  transition: border-color 0.2s ease;
+.orcamento-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
 }
 
-.orcamento-card.geral.excedido {
-  border-left-color: #c62828;
+.orcamento-title {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.orcamento-title-label {
+  font-weight: 700;
+  font-size: 0.98rem;
+  color: var(--color-text-primary);
 }
 
 .form-orcamento {
@@ -19,6 +31,8 @@
   gap: 12px;
   flex-wrap: wrap;
   margin-bottom: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--color-border);
 
   button {
     display: inline-flex;
@@ -32,58 +46,10 @@
   flex: 1 1 260px;
 }
 
-.indicadores-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 16px;
-  margin-bottom: 12px;
-}
-
-.indicador {
-  display: flex;
-  flex-direction: column;
-}
-
-.indicador-label {
-  font-size: 0.78rem;
-  color: rgba(0, 0, 0, 0.6);
-}
-
-.indicador-valor {
-  font-size: 1.15rem;
-  font-weight: 600;
-  color: #1b5e20;
-}
-
-.indicador-valor.negativo {
-  color: #c62828;
-}
-
-.barra-progresso {
-  height: 8px;
-  border-radius: 6px;
-  margin-bottom: 8px;
-}
-
-.alerta-excedido {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 14px;
-  background: #fdecea;
-  color: #b71c1c;
-  border-radius: 6px;
-  font-weight: 600;
-
-  mat-icon {
-    color: #c62828;
-  }
-}
-
 .dica-especificos {
   margin: 0;
   font-size: 0.85rem;
-  color: rgba(0, 0, 0, 0.6);
+  color: var(--color-text-secondary);
 }
 
 .especificos-grid {

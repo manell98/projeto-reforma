@@ -8,10 +8,25 @@
   max-width: 480px;
 }
 
+.obra-heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.obra-heading-label {
+  font-weight: 700;
+  font-size: 0.98rem;
+  color: var(--color-text-primary);
+}
+
 .obra-form {
   display: flex;
   flex-direction: column;
   gap: 4px;
+  padding-top: 4px;
+  border-top: 1px solid var(--color-border);
 }
 
 .full-width {

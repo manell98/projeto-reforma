@@ -7,6 +7,13 @@
 
 <mat-card class="obra-card">
   <mat-card-content>
+    <div class="obra-heading">
+      <span class="icon-badge info">
+        <mat-icon>event</mat-icon>
+      </span>
+      <span class="obra-heading-label">Dados da obra</span>
+    </div>
+
     <form [formGroup]="form" (ngSubmit)="salvar()" class="obra-form">
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>Data de início da obra</mat-label>
