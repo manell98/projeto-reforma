@@ -19,5 +19,8 @@ npm-debug.log*
 .vscode/
 .idea/
 
+# Worktrees locais (agentes em paralelo)
+.claude/worktrees/
+
 # Cobertura de testes
 coverage/
