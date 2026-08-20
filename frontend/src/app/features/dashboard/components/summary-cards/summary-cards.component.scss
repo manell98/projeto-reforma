@@ -11,14 +11,6 @@
   padding: 16px;
 }
 
-.card-icon {
-  font-size: 32px;
-  width: 32px;
-  height: 32px;
-  color: var(--mat-sys-primary, #3f51b5);
-  flex-shrink: 0;
-}
-
 .card-body {
   display: flex;
   flex-direction: column;
@@ -26,13 +18,16 @@
 }
 
 .card-label {
-  font-size: 0.8rem;
-  color: rgba(0, 0, 0, 0.6);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
 }
 
 .card-value {
-  font-size: 1.4rem;
-  font-weight: 600;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -40,7 +35,7 @@
 
 .card-hint {
   font-size: 0.75rem;
-  color: rgba(0, 0, 0, 0.5);
+  color: var(--color-text-muted);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

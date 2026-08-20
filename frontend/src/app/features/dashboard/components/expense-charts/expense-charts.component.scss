@@ -1,7 +1,7 @@
 .charts-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(320px, 1fr));
-  gap: 16px;
+  gap: 20px;
 }
 
 .chart-card-wide {
@@ -24,14 +24,7 @@
   align-items: center;
   gap: 8px;
   padding: 40px 16px;
-  color: rgba(0, 0, 0, 0.6);
-}
-
-.lista-vazia {
-  text-align: center;
-  padding: 24px;
-  color: rgba(0, 0, 0, 0.6);
-  margin: 0;
+  color: var(--color-text-secondary);
 }
 
 .ultimas-lista {
@@ -46,8 +39,14 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px 4px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  padding: 10px 4px;
+  border-bottom: 1px solid var(--color-border);
+  transition: background-color 0.15s ease;
+  border-radius: var(--radius-sm);
+
+  &:hover {
+    background-color: var(--color-hover);
+  }
 
   &:last-child {
     border-bottom: none;
@@ -61,7 +60,8 @@
 }
 
 .ultima-descricao {
-  font-weight: 500;
+  font-weight: 600;
+  color: var(--color-text-primary);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -69,11 +69,12 @@
 
 .ultima-meta {
   font-size: 0.75rem;
-  color: rgba(0, 0, 0, 0.55);
+  color: var(--color-text-muted);
 }
 
 .ultima-valor {
-  font-weight: 600;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
   white-space: nowrap;
   margin-left: 12px;
 }

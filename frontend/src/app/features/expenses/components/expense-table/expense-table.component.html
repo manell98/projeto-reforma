@@ -52,7 +52,9 @@
           <ng-container matColumnDef="categoria">
             <th mat-header-cell *matHeaderCellDef>Categoria</th>
             <td mat-cell *matCellDef="let despesa">
-              {{ store.categoriaLabels().get(despesa.categoria) }}
+              <span class="category-chip">{{
+                store.categoriaLabels().get(despesa.categoria)
+              }}</span>
             </td>
           </ng-container>
 

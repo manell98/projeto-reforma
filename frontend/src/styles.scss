@@ -42,6 +42,11 @@ html {
 
   --color-info: #2f5fd0;
   --color-info-bg: #eaf0fd;
+
+  --color-accent: #b45309;
+  --color-accent-bg: #fef3e2;
+
+  --color-hover: rgba(15, 23, 42, 0.035);
 }
 
 html,
@@ -87,12 +92,34 @@ body {
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
   border: 1px solid var(--color-border);
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.mat-mdc-card.mdc-card:hover {
+  box-shadow: var(--shadow-md);
 }
 
 .mat-mdc-card-header .mat-mdc-card-title {
   font-size: 1rem;
   font-weight: 700;
   color: var(--color-text-primary);
+}
+
+// Estado "orçamento excedido" — aplicado junto com a classe .excedido/
+// .budget-exceeded que já é alternada pelos componentes de orçamento
+// (regra saldo < 0 fica no componente; aqui é só a expressão visual).
+// Dá ao card inteiro um contorno vermelho sutil, além do banner e dos
+// badges que já ficam vermelhos internamente — deixa o estado bem claro
+// mesmo em telas menores, onde o banner pode não estar visível de cara.
+.mat-mdc-card.mdc-card.excedido,
+.mat-mdc-card.mdc-card.budget-exceeded {
+  border-color: var(--color-danger-border);
+  box-shadow: 0 0 0 1px var(--color-danger-border), var(--shadow-sm);
+}
+
+.mat-mdc-card.mdc-card.excedido:hover,
+.mat-mdc-card.mdc-card.budget-exceeded:hover {
+  box-shadow: 0 0 0 1px var(--color-danger-border), var(--shadow-md);
 }
 
 // --- Padrão compartilhado de indicadores de orçamento -----------------
@@ -229,6 +256,11 @@ body {
 .icon-badge.danger {
   background: var(--color-danger-bg);
   color: var(--color-danger);
+}
+
+.icon-badge.accent {
+  background: var(--color-accent-bg);
+  color: var(--color-accent);
 }
 
 // Chip de categoria reutilizado na tabela de despesas.

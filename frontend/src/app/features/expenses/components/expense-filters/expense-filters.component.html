@@ -1,4 +1,8 @@
-<mat-card>
+<mat-card class="filters-card">
+<div class="filters-title">
+  <mat-icon>tune</mat-icon>
+  <span>Filtros</span>
+</div>
 <form [formGroup]="form" class="filters-form" (ngSubmit)="aplicar()">
   <mat-form-field appearance="outline" class="field-descricao">
     <mat-label>Buscar por descrição</mat-label>

@@ -1,6 +1,7 @@
 import { Component, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 // ng-apexcharts carrega 'apexcharts' via import() dinâmico internamente ao
 // montar o primeiro gráfico; importá-lo aqui estaticamente garante que o
@@ -51,6 +52,7 @@ const TEXTO_COR = '#1f2733';
   imports: [
     CommonModule,
     MatCardModule,
+    MatIconModule,
     MatProgressSpinnerModule,
     NgApexchartsModule,
   ],
@@ -164,7 +166,7 @@ export class ExpenseChartsComponent {
 
   readonly noData: ApexNoData = {
     text: 'Sem despesas cadastradas ainda.',
-    style: { color: 'rgba(0, 0, 0, 0.5)' },
+    style: { color: 'rgba(31, 39, 51, 0.55)' },
   };
 
   private formatarMoeda(valor: number): string {

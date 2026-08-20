@@ -69,7 +69,10 @@
     </mat-card-header>
     <mat-card-content>
       @if (store.ultimasDespesas().length === 0) {
-        <p class="lista-vazia">Sem despesas cadastradas ainda.</p>
+        <div class="empty-state">
+          <mat-icon>receipt_long</mat-icon>
+          <p>Sem despesas cadastradas ainda.</p>
+        </div>
       } @else {
         <div class="ultimas-lista">
           @for (despesa of store.ultimasDespesas(); track despesa.id) {
