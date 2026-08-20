@@ -17,6 +17,13 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'formas-pagamento',
+    loadComponent: () =>
+      import('./features/payment-methods/payment-methods.component').then(
+        (m) => m.PaymentMethodsComponent,
+      ),
+  },
+  {
     path: 'configuracoes/orcamento',
     loadComponent: () =>
       import(

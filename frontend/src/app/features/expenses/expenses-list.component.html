@@ -9,6 +9,22 @@
   </button>
 </div>
 
+<mat-card class="total-card">
+  <mat-card-content class="total-content">
+    <span class="icon-badge success">
+      <mat-icon>payments</mat-icon>
+    </span>
+    <div class="metric">
+      <span class="metric-label"
+        >Total gasto{{ temFiltrosAtivos() ? ' (com filtros aplicados)' : '' }}</span
+      >
+      <span class="metric-value is-hero">{{
+        totalFiltrado() | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR'
+      }}</span>
+    </div>
+  </mat-card-content>
+</mat-card>
+
 <app-expense-filters
   [categorias]="store.categorias()"
   [filtrosAtivos]="temFiltrosAtivos()"

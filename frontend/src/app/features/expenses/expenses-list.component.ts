@@ -1,5 +1,7 @@
+import { CommonModule } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -22,7 +24,14 @@ const FILTROS_VAZIOS: ExpenseFilters = {
 @Component({
   selector: 'app-expenses-list',
   standalone: true,
-  imports: [MatButtonModule, MatIconModule, ExpenseFiltersComponent, ExpenseTableComponent],
+  imports: [
+    CommonModule,
+    MatButtonModule,
+    MatCardModule,
+    MatIconModule,
+    ExpenseFiltersComponent,
+    ExpenseTableComponent,
+  ],
   templateUrl: './expenses-list.component.html',
   styleUrl: './expenses-list.component.scss',
 })
@@ -54,6 +63,12 @@ export class ExpensesListComponent {
       return true;
     });
   });
+
+  // Sempre a soma do conjunto atualmente filtrado (ou de todas as despesas,
+  // quando não há filtro ativo) — nunca um total fixo calculado à parte.
+  readonly totalFiltrado = computed(() =>
+    this.despesasFiltradas().reduce((soma, despesa) => soma + despesa.valor, 0),
+  );
 
   aplicarFiltros(filtros: ExpenseFilters): void {
     this.filtros.set(filtros);

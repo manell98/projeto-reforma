@@ -1,0 +1,51 @@
+<div class="page-header">
+  <div>
+    <h1>Formas de pagamento</h1>
+    <p class="page-subtitle">
+      Análise das formas de pagamento identificadas nas observações das despesas
+    </p>
+  </div>
+</div>
+
+<app-expense-filters
+  [categorias]="store.categorias()"
+  [filtrosAtivos]="temFiltrosAtivos()"
+  (filtrar)="aplicarFiltrosBase($event)"
+  (limpar)="limparFiltrosBase()"
+/>
+
+<mat-card class="extra-filters-card">
+  <div class="extra-filters-form">
+    <mat-form-field appearance="outline" class="field-forma">
+      <mat-label>Forma de pagamento</mat-label>
+      <mat-select
+        [value]="formaPagamentoFiltro()"
+        (selectionChange)="definirFormaPagamentoFiltro($event.value)"
+      >
+        <mat-option [value]="null">Todas as formas</mat-option>
+        @for (opcao of formaPagamentoOptions; track opcao.valor) {
+          <mat-option [value]="opcao.valor">{{ opcao.label }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="field-parcelas">
+      <mat-label>Quantidade de parcelas</mat-label>
+      <mat-select
+        [value]="parcelasFiltro()"
+        (selectionChange)="definirParcelasFiltro($event.value)"
+      >
+        <mat-option [value]="null">Todas as quantidades</mat-option>
+        @for (parcelas of parcelasDisponiveis(); track parcelas) {
+          <mat-option [value]="parcelas">{{ parcelas }}x</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  </div>
+</mat-card>
+
+<app-payment-method-cards [resumo]="resumo()" />
+
+<app-payment-method-charts [resumo]="resumo()" />
+
+<app-installment-distribution [distribuicao]="resumo().distribuicaoParcelas" />

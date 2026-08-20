@@ -1,0 +1,17 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.extra-filters-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 4px 4px 0;
+}
+
+.field-forma,
+.field-parcelas {
+  min-width: 220px;
+}

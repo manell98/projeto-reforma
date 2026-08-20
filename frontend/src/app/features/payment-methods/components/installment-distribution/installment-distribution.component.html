@@ -1,0 +1,25 @@
+<mat-card class="distribution-card">
+  <mat-card-header>
+    <mat-card-title>Distribuição das parcelas (crédito)</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    @if (distribuicao().length === 0) {
+      <div class="empty-state">
+        <mat-icon>credit_card_off</mat-icon>
+        <p>Nenhuma despesa no crédito encontrada para os filtros aplicados.</p>
+      </div>
+    } @else {
+      <div class="distribution-list">
+        @for (item of distribuicao(); track item.parcelas) {
+          <div class="distribution-row">
+            <span class="distribution-parcelas">{{ item.parcelas }}x</span>
+            <span class="distribution-quantidade">{{ item.quantidade }} despesa(s)</span>
+            <span class="distribution-valor">{{
+              item.valor | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR'
+            }}</span>
+          </div>
+        }
+      </div>
+    }
+  </mat-card-content>
+</mat-card>

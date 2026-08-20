@@ -34,6 +34,15 @@
         <mat-icon matListItemIcon>list_alt</mat-icon>
         <span matListItemTitle>Listar despesas</span>
       </a>
+      <a
+        mat-list-item
+        routerLink="/formas-pagamento"
+        routerLinkActive="active-link"
+        (click)="fecharSidenavSeOverlay()"
+      >
+        <mat-icon matListItemIcon>credit_card</mat-icon>
+        <span matListItemTitle>Formas de pagamento</span>
+      </a>
 
       <div class="nav-section-label">Configurações</div>
       <a

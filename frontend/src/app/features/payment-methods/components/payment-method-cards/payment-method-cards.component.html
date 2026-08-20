@@ -1,0 +1,78 @@
+<div class="cards-grid">
+  <mat-card class="summary-card">
+    <span class="icon-badge info">
+      <mat-icon>fact_check</mat-icon>
+    </span>
+    <div class="card-body">
+      <span class="card-label">Total analisado</span>
+      <span class="card-value">{{
+        resumo().totalAnalisado.valor | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR'
+      }}</span>
+      <span class="card-hint">{{ resumo().totalAnalisado.quantidade }} despesa(s)</span>
+    </div>
+  </mat-card>
+
+  <mat-card class="summary-card">
+    <span class="icon-badge success">
+      <mat-icon>qr_code_2</mat-icon>
+    </span>
+    <div class="card-body">
+      <span class="card-label">Pix</span>
+      <span class="card-value">{{
+        resumo().pix.valor | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR'
+      }}</span>
+      <span class="card-hint"
+        >{{ resumo().pix.quantidade }} despesa(s) ·
+        {{ resumo().pix.percentual | number: '1.0-1' }}%</span
+      >
+    </div>
+  </mat-card>
+
+  <mat-card class="summary-card">
+    <span class="icon-badge accent">
+      <mat-icon>credit_card</mat-icon>
+    </span>
+    <div class="card-body">
+      <span class="card-label">Crédito 1x</span>
+      <span class="card-value">{{
+        resumo().creditoAvista.valor | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR'
+      }}</span>
+      <span class="card-hint"
+        >{{ resumo().creditoAvista.quantidade }} despesa(s) ·
+        {{ resumo().creditoAvista.percentual | number: '1.0-1' }}%</span
+      >
+    </div>
+  </mat-card>
+
+  <mat-card class="summary-card">
+    <span class="icon-badge accent">
+      <mat-icon>calendar_view_week</mat-icon>
+    </span>
+    <div class="card-body">
+      <span class="card-label">Crédito parcelado</span>
+      <span class="card-value">{{
+        resumo().creditoParcelado.valor | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR'
+      }}</span>
+      <span class="card-hint"
+        >{{ resumo().creditoParcelado.quantidade }} despesa(s) ·
+        {{ resumo().creditoParcelado.percentual | number: '1.0-1' }}%</span
+      >
+    </div>
+  </mat-card>
+
+  <mat-card class="summary-card">
+    <span class="icon-badge danger">
+      <mat-icon>help_outline</mat-icon>
+    </span>
+    <div class="card-body">
+      <span class="card-label">Não identificado</span>
+      <span class="card-value">{{
+        resumo().naoIdentificado.valor | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR'
+      }}</span>
+      <span class="card-hint"
+        >{{ resumo().naoIdentificado.quantidade }} despesa(s) ·
+        {{ resumo().naoIdentificado.percentual | number: '1.0-1' }}%</span
+      >
+    </div>
+  </mat-card>
+</div>
