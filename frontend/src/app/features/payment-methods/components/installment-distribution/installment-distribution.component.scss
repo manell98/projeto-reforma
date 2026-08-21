@@ -5,10 +5,9 @@
 }
 
 .distribution-row {
-  display: grid;
-  grid-template-columns: 60px 1fr auto;
+  display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
   padding: 10px 4px;
   border-bottom: 1px solid var(--color-border);
 
@@ -17,9 +16,34 @@
   }
 }
 
-.distribution-parcelas {
+.distribution-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  height: 44px;
+  padding: 0 6px;
+  border-radius: var(--radius-md);
+  background: var(--color-accent-bg);
+  color: var(--color-accent);
   font-weight: 700;
-  color: var(--color-text-primary);
+  font-size: 0.95rem;
+  flex-shrink: 0;
+}
+
+.distribution-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  flex: 1;
+}
+
+.distribution-meta {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
 }
 
 .distribution-quantidade {
@@ -31,4 +55,11 @@
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   color: var(--color-text-primary);
+  white-space: nowrap;
+}
+
+.distribution-progress {
+  height: 6px;
+  border-radius: 999px;
+  overflow: hidden;
 }

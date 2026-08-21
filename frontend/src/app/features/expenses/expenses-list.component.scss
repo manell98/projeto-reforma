@@ -10,8 +10,33 @@ button {
   gap: 4px;
 }
 
+// Card de destaque do total gasto — mesma linguagem visual dos cards de
+// orçamento (icon-badge + metric hero), com uma borda de acento e leve
+// tingimento de fundo para chamar mais atenção que um mat-card comum, já
+// que é o número mais importante desta tela.
+.total-card {
+  border-left: 4px solid var(--color-success);
+  background: linear-gradient(
+    120deg,
+    var(--color-success-bg) 0%,
+    transparent 55%
+  );
+}
+
 .total-content {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 18px;
+  padding: 6px 4px;
+
+  .icon-badge {
+    width: 52px;
+    height: 52px;
+
+    mat-icon {
+      font-size: 28px;
+      width: 28px;
+      height: 28px;
+    }
+  }
 }

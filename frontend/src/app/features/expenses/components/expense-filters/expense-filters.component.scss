@@ -2,22 +2,10 @@
   padding-bottom: 4px;
 }
 
+// Visual do rótulo (ícone + uppercase) vem de .section-label em styles.scss;
+// aqui só o espaçamento específico de estar no topo deste card.
 .filters-title {
-  display: flex;
-  align-items: center;
-  gap: 8px;
   padding: 16px 16px 0;
-  font-size: 0.78rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--color-text-muted);
-
-  mat-icon {
-    font-size: 18px;
-    width: 18px;
-    height: 18px;
-  }
 }
 
 .filters-form {

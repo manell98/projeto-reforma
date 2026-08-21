@@ -263,6 +263,72 @@ body {
   color: var(--color-accent);
 }
 
+// Rótulo pequeno em uppercase usado como cabeçalho discreto de blocos
+// compactos (ex: topo do card de filtros) — mesma identidade visual em
+// qualquer tela que precise de um títulozinho acima de um grupo de campos.
+.section-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+}
+
+// Grade de cards de resumo (ícone + rótulo + valor em destaque), usada nos
+// cards do topo do dashboard e nos cards de formas de pagamento — mesmo
+// padrão visual em qualquer tela que precise resumir números em destaque.
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.summary-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+}
+
+.card-body {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.card-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+.card-value {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.card-hint {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 // Chip de categoria reutilizado na tabela de despesas.
 .category-chip {
   display: inline-flex;

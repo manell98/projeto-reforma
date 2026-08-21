@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
 import { ExpenseStoreService } from '../../core/state/expense-store.service';
 import { ExpenseFilters } from '../../core/models/expense.model';
@@ -30,6 +31,7 @@ const FILTROS_VAZIOS: ExpenseFilters = {
     CommonModule,
     MatCardModule,
     MatFormFieldModule,
+    MatIconModule,
     MatSelectModule,
     ExpenseFiltersComponent,
     PaymentMethodCardsComponent,

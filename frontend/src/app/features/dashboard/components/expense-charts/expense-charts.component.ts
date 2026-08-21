@@ -24,27 +24,7 @@ import {
   NgApexchartsModule,
 } from 'ng-apexcharts';
 import { ExpenseStoreService } from '../../../../core/state/expense-store.service';
-
-const PALETA_CORES = [
-  '#3f51b5',
-  '#ff9800',
-  '#4caf50',
-  '#e91e63',
-  '#00bcd4',
-  '#9c27b0',
-  '#795548',
-  '#ffc107',
-  '#607d8b',
-  '#f44336',
-  '#009688',
-];
-
-// Cor de texto explícita para todos os elementos dos gráficos (eixos,
-// legendas, data labels, tooltip). Sem isso, o ApexCharts às vezes escolhe um
-// texto claro/pouco contrastante contra o fundo branco dos cards — problema
-// real reportado pelo usuário. Fixar `foreColor` no `chart` e repetir a cor
-// em `legend`/`xaxis`/`yaxis`/`dataLabels` garante contraste consistente.
-const TEXTO_COR = '#1f2733';
+import { PALETA_CORES, TEXTO_COR } from '../../../../shared/utils/chart-theme.util';
 
 @Component({
   selector: 'app-expense-charts',

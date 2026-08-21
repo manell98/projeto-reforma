@@ -21,9 +21,19 @@ import {
 } from 'ng-apexcharts';
 import { ExpenseStoreService } from '../../../../core/state/expense-store.service';
 import { ResumoFormasPagamento } from '../../../../shared/utils/forma-pagamento.util';
+import { PALETA_CORES, TEXTO_COR } from '../../../../shared/utils/chart-theme.util';
 
-const PALETA_CORES = ['#4caf50', '#3f51b5', '#ff9800', '#9e9e9e'];
-const TEXTO_COR = '#1f2733';
+// Mesmas cores usadas nos gráficos do dashboard (índices 2/0/1 da paleta
+// compartilhada = verde/índigo/laranja), na ordem Pix / Crédito 1x / Crédito
+// parcelado, para manter a mesma identidade visual entre as duas telas.
+// Cinza neutro para "Não identificado" — fora da paleta categórica porque
+// representa ausência de classificação, não uma categoria em si.
+const CORES_FORMAS_PAGAMENTO = [
+  PALETA_CORES[2],
+  PALETA_CORES[0],
+  PALETA_CORES[1],
+  '#9e9e9e',
+];
 
 @Component({
   selector: 'app-payment-method-charts',
@@ -41,7 +51,7 @@ export class PaymentMethodChartsComponent {
   readonly store = inject(ExpenseStoreService);
   readonly resumo = input.required<ResumoFormasPagamento>();
 
-  readonly cores = PALETA_CORES;
+  readonly cores = CORES_FORMAS_PAGAMENTO;
 
   readonly rotulos = ['Pix', 'Crédito 1x', 'Crédito parcelado', 'Não identificado'];
 

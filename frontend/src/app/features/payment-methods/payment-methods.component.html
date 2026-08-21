@@ -7,42 +7,48 @@
   </div>
 </div>
 
-<app-expense-filters
-  [categorias]="store.categorias()"
-  [filtrosAtivos]="temFiltrosAtivos()"
-  (filtrar)="aplicarFiltrosBase($event)"
-  (limpar)="limparFiltrosBase()"
-/>
+<div class="filters-block">
+  <app-expense-filters
+    [categorias]="store.categorias()"
+    [filtrosAtivos]="temFiltrosAtivos()"
+    (filtrar)="aplicarFiltrosBase($event)"
+    (limpar)="limparFiltrosBase()"
+  />
 
-<mat-card class="extra-filters-card">
-  <div class="extra-filters-form">
-    <mat-form-field appearance="outline" class="field-forma">
-      <mat-label>Forma de pagamento</mat-label>
-      <mat-select
-        [value]="formaPagamentoFiltro()"
-        (selectionChange)="definirFormaPagamentoFiltro($event.value)"
-      >
-        <mat-option [value]="null">Todas as formas</mat-option>
-        @for (opcao of formaPagamentoOptions; track opcao.valor) {
-          <mat-option [value]="opcao.valor">{{ opcao.label }}</mat-option>
-        }
-      </mat-select>
-    </mat-form-field>
+  <mat-card class="extra-filters-card">
+    <div class="section-label extra-filters-title">
+      <mat-icon>credit_card</mat-icon>
+      <span>Forma de pagamento e parcelas</span>
+    </div>
+    <div class="extra-filters-form">
+      <mat-form-field appearance="outline" class="field-forma">
+        <mat-label>Forma de pagamento</mat-label>
+        <mat-select
+          [value]="formaPagamentoFiltro()"
+          (selectionChange)="definirFormaPagamentoFiltro($event.value)"
+        >
+          <mat-option [value]="null">Todas as formas</mat-option>
+          @for (opcao of formaPagamentoOptions; track opcao.valor) {
+            <mat-option [value]="opcao.valor">{{ opcao.label }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
 
-    <mat-form-field appearance="outline" class="field-parcelas">
-      <mat-label>Quantidade de parcelas</mat-label>
-      <mat-select
-        [value]="parcelasFiltro()"
-        (selectionChange)="definirParcelasFiltro($event.value)"
-      >
-        <mat-option [value]="null">Todas as quantidades</mat-option>
-        @for (parcelas of parcelasDisponiveis(); track parcelas) {
-          <mat-option [value]="parcelas">{{ parcelas }}x</mat-option>
-        }
-      </mat-select>
-    </mat-form-field>
-  </div>
-</mat-card>
+      <mat-form-field appearance="outline" class="field-parcelas">
+        <mat-label>Quantidade de parcelas</mat-label>
+        <mat-select
+          [value]="parcelasFiltro()"
+          (selectionChange)="definirParcelasFiltro($event.value)"
+        >
+          <mat-option [value]="null">Todas as quantidades</mat-option>
+          @for (parcelas of parcelasDisponiveis(); track parcelas) {
+            <mat-option [value]="parcelas">{{ parcelas }}x</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    </div>
+  </mat-card>
+</div>
 
 <app-payment-method-cards [resumo]="resumo()" />
 

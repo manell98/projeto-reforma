@@ -12,11 +12,20 @@
       <div class="distribution-list">
         @for (item of distribuicao(); track item.parcelas) {
           <div class="distribution-row">
-            <span class="distribution-parcelas">{{ item.parcelas }}x</span>
-            <span class="distribution-quantidade">{{ item.quantidade }} despesa(s)</span>
-            <span class="distribution-valor">{{
-              item.valor | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR'
-            }}</span>
+            <span class="distribution-badge">{{ item.parcelas }}x</span>
+            <div class="distribution-info">
+              <div class="distribution-meta">
+                <span class="distribution-quantidade">{{ item.quantidade }} despesa(s)</span>
+                <span class="distribution-valor">{{
+                  item.valor | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR'
+                }}</span>
+              </div>
+              <mat-progress-bar
+                class="distribution-progress"
+                mode="determinate"
+                [value]="proporcao(item.valor)"
+              />
+            </div>
           </div>
         }
       </div>
