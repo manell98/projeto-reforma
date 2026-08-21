@@ -1,26 +1,19 @@
-# Dependências
 node_modules/
 
-# Builds
 dist/
 out-tsc/
 .angular/
 
-# Ambiente
 .env
 .env.local
 
-# Logs
 *.log
 npm-debug.log*
 
-# Editor / SO
 .DS_Store
 .vscode/
 .idea/
 
-# Worktrees locais (agentes em paralelo)
 .claude/worktrees/
 
-# Cobertura de testes
 coverage/
