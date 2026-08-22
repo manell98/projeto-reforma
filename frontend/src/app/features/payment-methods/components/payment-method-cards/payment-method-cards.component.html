@@ -33,6 +33,22 @@
       <mat-icon>credit_card</mat-icon>
     </span>
     <div class="card-body">
+      <span class="card-label">Cartão de crédito</span>
+      <span class="card-value">{{
+        resumo().cartao.valor | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR'
+      }}</span>
+      <span class="card-hint"
+        >{{ resumo().cartao.quantidade }} despesa(s) ·
+        {{ resumo().cartao.percentual | number: '1.0-1' }}%</span
+      >
+    </div>
+  </mat-card>
+
+  <mat-card class="summary-card">
+    <span class="icon-badge accent">
+      <mat-icon>looks_one</mat-icon>
+    </span>
+    <div class="card-body">
       <span class="card-label">Crédito 1x</span>
       <span class="card-value">{{
         resumo().creditoAvista.valor | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR'
@@ -65,13 +81,13 @@
       <mat-icon>help_outline</mat-icon>
     </span>
     <div class="card-body">
-      <span class="card-label">Não identificado</span>
+      <span class="card-label">Não informado</span>
       <span class="card-value">{{
-        resumo().naoIdentificado.valor | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR'
+        resumo().naoInformado.valor | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR'
       }}</span>
       <span class="card-hint"
-        >{{ resumo().naoIdentificado.quantidade }} despesa(s) ·
-        {{ resumo().naoIdentificado.percentual | number: '1.0-1' }}%</span
+        >{{ resumo().naoInformado.quantidade }} despesa(s) ·
+        {{ resumo().naoInformado.percentual | number: '1.0-1' }}%</span
       >
     </div>
   </mat-card>

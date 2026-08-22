@@ -1,12 +1,14 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { Categoria } from '@prisma/client';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Categoria, FormaPagamento } from '@prisma/client';
 import {
   IsDateString,
   IsEnum,
+  IsInt,
   IsNumber,
   IsOptional,
   IsPositive,
   IsString,
+  Max,
   MaxLength,
   Min,
 } from 'class-validator';
@@ -36,4 +38,21 @@ export class CreateExpenseDto {
   @IsString()
   @MaxLength(1000)
   observacao?: string;
+
+  @ApiProperty({ enum: FormaPagamento, example: FormaPagamento.PIX })
+  @IsEnum(FormaPagamento)
+  formaPagamento: FormaPagamento;
+
+  @ApiPropertyOptional({
+    example: 3,
+    minimum: 1,
+    maximum: 12,
+    description:
+      'Obrigatório quando formaPagamento for CARTAO_CREDITO; ignorado quando for PIX',
+  })
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(12)
+  parcelas?: number;
 }

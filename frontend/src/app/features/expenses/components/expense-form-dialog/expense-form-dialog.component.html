@@ -48,6 +48,31 @@
     </mat-form-field>
 
     <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Forma de pagamento</mat-label>
+      <mat-select formControlName="formaPagamento">
+        <mat-option value="PIX">Pix</mat-option>
+        <mat-option value="CARTAO_CREDITO">Cartão de crédito</mat-option>
+      </mat-select>
+      @if (form.controls.formaPagamento.hasError('required')) {
+        <mat-error>Selecione a forma de pagamento.</mat-error>
+      }
+    </mat-form-field>
+
+    @if (formaPagamentoSelecionada() === 'CARTAO_CREDITO') {
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Parcelas</mat-label>
+        <mat-select formControlName="parcelas">
+          @for (parcela of parcelasOpcoes; track parcela) {
+            <mat-option [value]="parcela">{{ parcela }}x</mat-option>
+          }
+        </mat-select>
+        @if (form.controls.parcelas.hasError('required')) {
+          <mat-error>Informe a quantidade de parcelas.</mat-error>
+        }
+      </mat-form-field>
+    }
+
+    <mat-form-field appearance="outline" class="full-width">
       <mat-label>Data</mat-label>
       <input
         matInput
@@ -67,7 +92,7 @@
         matInput
         formControlName="observacao"
         rows="2"
-        placeholder="Detalhes adicionais, forma de pagamento, fornecedor..."
+        placeholder="Detalhes adicionais, fornecedor..."
       ></textarea>
     </mat-form-field>
   </mat-dialog-content>

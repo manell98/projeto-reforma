@@ -20,6 +20,11 @@ export interface CategoriaOption {
   label: string;
 }
 
+// Forma de pagamento estruturada da despesa. `null` significa "não
+// informado" — despesas cadastradas antes desse campo existir, nunca
+// deduzido a partir da observação (texto livre).
+export type FormaPagamento = 'PIX' | 'CARTAO_CREDITO';
+
 export interface Expense {
   id: string;
   valor: number;
@@ -27,6 +32,8 @@ export interface Expense {
   categoria: Categoria;
   data: string;
   observacao: string | null;
+  formaPagamento: FormaPagamento | null;
+  parcelas: number | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -37,6 +44,8 @@ export interface ExpensePayload {
   categoria: Categoria;
   data: string;
   observacao?: string | null;
+  formaPagamento: FormaPagamento;
+  parcelas: number | null;
 }
 
 export interface ExpenseFilters {

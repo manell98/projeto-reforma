@@ -1,24 +1,22 @@
 import { Expense } from '../../core/models/expense.model';
 
-export type FormaPagamento =
+// Agrupamento de exibição para a aba "Formas de pagamento": Pix e Cartão de
+// crédito (`Expense.formaPagamento`) são os valores estruturados persistidos;
+// o cartão é subdividido em 1x/parcelado a partir de `Expense.parcelas` só
+// para fins de relatório. NAO_INFORMADO cobre despesas cadastradas antes
+// desse campo existir — nunca é inferido a partir da observação.
+export type GrupoFormaPagamento =
   | 'PIX'
   | 'CREDITO_1X'
   | 'CREDITO_PARCELADO'
-  | 'NAO_IDENTIFICADO';
+  | 'NAO_INFORMADO';
 
-export const FORMA_PAGAMENTO_LABELS: Record<FormaPagamento, string> = {
+export const GRUPO_FORMA_PAGAMENTO_LABELS: Record<GrupoFormaPagamento, string> = {
   PIX: 'Pix',
   CREDITO_1X: 'Crédito 1x (à vista)',
   CREDITO_PARCELADO: 'Crédito parcelado',
-  NAO_IDENTIFICADO: 'Não identificado',
+  NAO_INFORMADO: 'Não informado',
 };
-
-export interface ClassificacaoPagamento {
-  formaPagamento: FormaPagamento;
-  parcelas: number | null;
-}
-
-export type DespesaClassificada = Expense & ClassificacaoPagamento;
 
 export interface FormaPagamentoResumo {
   quantidade: number;
@@ -35,64 +33,28 @@ export interface ParcelaResumo {
 export interface ResumoFormasPagamento {
   totalAnalisado: { quantidade: number; valor: number };
   pix: FormaPagamentoResumo;
+  cartao: FormaPagamentoResumo;
   creditoAvista: FormaPagamentoResumo;
   creditoParcelado: FormaPagamentoResumo;
-  naoIdentificado: FormaPagamentoResumo;
+  naoInformado: FormaPagamentoResumo;
   distribuicaoParcelas: ParcelaResumo[];
 }
 
-// Uma observação só é considerada "parcelamento no crédito" quando tem AMBOS
-// um número seguido de "x" (a contagem de parcelas) E uma palavra de contexto
-// de crédito/cartão/parcelamento por perto — evita interpretar um "Nx" solto
-// (ex: uma medida "2x3m") como forma de pagamento. Padrões confirmados nos
-// dados reais cadastrados: "Pix", "pago pix", "1x no crédito", "10x de
-// R$596,11 no crédito", "Parcelado 4x de R$550,09 no cartão", "Parcelado 6x
-// de R$889,57", "3x parcelado no crédito", "1x no cartão".
-const REGEX_PARCELAS = /(\d+)\s*x\b/i;
-const REGEX_CONTEXTO_CREDITO = /(cr[ée]dito|cart[ãa]o|parcelado)/i;
-const REGEX_PIX = /\bpix\b/i;
-
-/**
- * Classifica a forma de pagamento de UMA despesa a partir do texto da sua
- * observação — nunca da categoria, valor, data ou descrição. Quando o texto
- * não permite identificar a forma com segurança, retorna NAO_IDENTIFICADO em
- * vez de arriscar um palpite.
- */
-export function classificarFormaPagamento(
-  observacao: string | null,
-): ClassificacaoPagamento {
-  const texto = observacao ?? '';
-
-  const matchParcelas = texto.match(REGEX_PARCELAS);
-  if (matchParcelas && REGEX_CONTEXTO_CREDITO.test(texto)) {
-    const parcelas = Number(matchParcelas[1]);
-    return {
-      formaPagamento: parcelas <= 1 ? 'CREDITO_1X' : 'CREDITO_PARCELADO',
-      parcelas,
-    };
+export function grupoFormaPagamento(despesa: Expense): GrupoFormaPagamento {
+  if (despesa.formaPagamento === 'PIX') return 'PIX';
+  if (despesa.formaPagamento === 'CARTAO_CREDITO') {
+    return despesa.parcelas === 1 ? 'CREDITO_1X' : 'CREDITO_PARCELADO';
   }
-
-  if (REGEX_PIX.test(texto)) {
-    return { formaPagamento: 'PIX', parcelas: null };
-  }
-
-  return { formaPagamento: 'NAO_IDENTIFICADO', parcelas: null };
+  return 'NAO_INFORMADO';
 }
 
-export function classificarDespesas(despesas: Expense[]): DespesaClassificada[] {
-  return despesas.map((despesa) => ({
-    ...despesa,
-    ...classificarFormaPagamento(despesa.observacao),
-  }));
-}
-
-export function resumirFormasPagamento(
-  despesas: DespesaClassificada[],
-): ResumoFormasPagamento {
+export function resumirFormasPagamento(despesas: Expense[]): ResumoFormasPagamento {
   const valorTotal = despesas.reduce((soma, despesa) => soma + despesa.valor, 0);
 
-  const resumirGrupo = (forma: FormaPagamento): FormaPagamentoResumo => {
-    const doGrupo = despesas.filter((despesa) => despesa.formaPagamento === forma);
+  const resumirGrupo = (
+    predicado: (despesa: Expense) => boolean,
+  ): FormaPagamentoResumo => {
+    const doGrupo = despesas.filter(predicado);
     const valor = doGrupo.reduce((soma, despesa) => soma + despesa.valor, 0);
     return {
       quantidade: doGrupo.length,
@@ -103,7 +65,9 @@ export function resumirFormasPagamento(
 
   const distribuicaoMap = new Map<number, { quantidade: number; valor: number }>();
   for (const despesa of despesas) {
-    if (despesa.parcelas === null) continue;
+    if (despesa.formaPagamento !== 'CARTAO_CREDITO' || despesa.parcelas === null) {
+      continue;
+    }
     const atual = distribuicaoMap.get(despesa.parcelas) ?? {
       quantidade: 0,
       valor: 0,
@@ -118,10 +82,13 @@ export function resumirFormasPagamento(
 
   return {
     totalAnalisado: { quantidade: despesas.length, valor: valorTotal },
-    pix: resumirGrupo('PIX'),
-    creditoAvista: resumirGrupo('CREDITO_1X'),
-    creditoParcelado: resumirGrupo('CREDITO_PARCELADO'),
-    naoIdentificado: resumirGrupo('NAO_IDENTIFICADO'),
+    pix: resumirGrupo((d) => d.formaPagamento === 'PIX'),
+    cartao: resumirGrupo((d) => d.formaPagamento === 'CARTAO_CREDITO'),
+    creditoAvista: resumirGrupo((d) => grupoFormaPagamento(d) === 'CREDITO_1X'),
+    creditoParcelado: resumirGrupo(
+      (d) => grupoFormaPagamento(d) === 'CREDITO_PARCELADO',
+    ),
+    naoInformado: resumirGrupo((d) => d.formaPagamento === null),
     distribuicaoParcelas,
   };
 }

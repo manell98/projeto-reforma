@@ -8,9 +8,9 @@ import { ExpenseStoreService } from '../../core/state/expense-store.service';
 import { ExpenseFilters } from '../../core/models/expense.model';
 import { ExpenseFiltersComponent } from '../expenses/components/expense-filters/expense-filters.component';
 import {
-  FORMA_PAGAMENTO_LABELS,
-  FormaPagamento,
-  classificarDespesas,
+  GRUPO_FORMA_PAGAMENTO_LABELS,
+  GrupoFormaPagamento,
+  grupoFormaPagamento,
   resumirFormasPagamento,
 } from '../../shared/utils/forma-pagamento.util';
 import { PaymentMethodCardsComponent } from './components/payment-method-cards/payment-method-cards.component';
@@ -44,25 +44,20 @@ const FILTROS_VAZIOS: ExpenseFilters = {
 export class PaymentMethodsComponent {
   readonly store = inject(ExpenseStoreService);
 
-  readonly formaPagamentoOptions = Object.entries(FORMA_PAGAMENTO_LABELS).map(
-    ([valor, label]) => ({ valor: valor as FormaPagamento, label }),
+  readonly formaPagamentoOptions = Object.entries(GRUPO_FORMA_PAGAMENTO_LABELS).map(
+    ([valor, label]) => ({ valor: valor as GrupoFormaPagamento, label }),
   );
 
   private readonly filtrosBase = signal<ExpenseFilters>({ ...FILTROS_VAZIOS });
-  readonly formaPagamentoFiltro = signal<FormaPagamento | null>(null);
+  readonly formaPagamentoFiltro = signal<GrupoFormaPagamento | null>(null);
   readonly parcelasFiltro = signal<number | null>(null);
-
-  // A observação de cada despesa é classificada em memória a partir da lista
-  // já carregada pelo store (sem cadastro/tabela paralela) — a mesma lista
-  // completa usada pelo dashboard e pela tela de Despesas.
-  readonly despesasClassificadas = computed(() =>
-    classificarDespesas(this.store.expenses()),
-  );
 
   readonly parcelasDisponiveis = computed(() => {
     const encontradas = new Set<number>();
-    for (const despesa of this.despesasClassificadas()) {
-      if (despesa.parcelas !== null) encontradas.add(despesa.parcelas);
+    for (const despesa of this.store.expenses()) {
+      if (despesa.formaPagamento === 'CARTAO_CREDITO' && despesa.parcelas !== null) {
+        encontradas.add(despesa.parcelas);
+      }
     }
     return Array.from(encontradas).sort((a, b) => a - b);
   });
@@ -81,10 +76,10 @@ export class PaymentMethodsComponent {
 
   readonly despesasFiltradas = computed(() => {
     const f = this.filtrosBase();
-    const forma = this.formaPagamentoFiltro();
+    const grupo = this.formaPagamentoFiltro();
     const parcelas = this.parcelasFiltro();
 
-    return this.despesasClassificadas().filter((despesa) => {
+    return this.store.expenses().filter((despesa) => {
       if (f.categoria && despesa.categoria !== f.categoria) return false;
       if (
         f.descricao &&
@@ -95,7 +90,7 @@ export class PaymentMethodsComponent {
       const dataDespesa = despesa.data.slice(0, 10);
       if (f.dataInicio && dataDespesa < f.dataInicio) return false;
       if (f.dataFim && dataDespesa > f.dataFim) return false;
-      if (forma && despesa.formaPagamento !== forma) return false;
+      if (grupo && grupoFormaPagamento(despesa) !== grupo) return false;
       if (parcelas !== null && despesa.parcelas !== parcelas) return false;
       return true;
     });
@@ -113,7 +108,7 @@ export class PaymentMethodsComponent {
     this.parcelasFiltro.set(null);
   }
 
-  definirFormaPagamentoFiltro(valor: FormaPagamento | null): void {
+  definirFormaPagamentoFiltro(valor: GrupoFormaPagamento | null): void {
     this.formaPagamentoFiltro.set(valor);
   }
 

@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import {
   FormBuilder,
   ReactiveFormsModule,
@@ -14,13 +14,20 @@ import {
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { CategoriaOption, Expense, ExpensePayload } from '../../../../core/models/expense.model';
+import {
+  CategoriaOption,
+  Expense,
+  ExpensePayload,
+  FormaPagamento,
+} from '../../../../core/models/expense.model';
 import { MoedaInputDirective } from '../../../../shared/directives/moeda-input.directive';
 
 export interface ExpenseFormDialogData {
   categorias: CategoriaOption[];
   expense: Expense | null;
 }
+
+export const PARCELAS_OPCOES = Array.from({ length: 12 }, (_, i) => i + 1);
 
 @Component({
   selector: 'app-expense-form-dialog',
@@ -46,6 +53,7 @@ export class ExpenseFormDialogComponent {
   readonly data = inject<ExpenseFormDialogData>(MAT_DIALOG_DATA);
 
   readonly editando = Boolean(this.data.expense);
+  readonly parcelasOpcoes = PARCELAS_OPCOES;
 
   readonly form = this.fb.nonNullable.group({
     valor: [
@@ -67,7 +75,43 @@ export class ExpenseFormDialogComponent {
       [Validators.required],
     ],
     observacao: [this.data.expense?.observacao ?? ''],
+    formaPagamento: [
+      this.data.expense?.formaPagamento ?? null,
+      [Validators.required],
+    ],
+    parcelas: [this.data.expense?.parcelas ?? null],
   });
+
+  // Espelha o controle `formaPagamento` num signal só para controlar a
+  // exibição do campo "Parcelas" no template (o form em si continua sendo a
+  // fonte de verdade validada/enviada no submit).
+  readonly formaPagamentoSelecionada = signal<FormaPagamento | null>(
+    this.form.controls.formaPagamento.value,
+  );
+
+  constructor() {
+    this.atualizarValidacaoParcelas(this.form.controls.formaPagamento.value);
+    this.form.controls.formaPagamento.valueChanges.subscribe((valor) => {
+      this.formaPagamentoSelecionada.set(valor);
+      this.atualizarValidacaoParcelas(valor);
+    });
+  }
+
+  // Cartão de crédito exige parcelas (1x a 12x); Pix nunca as usa — trocar
+  // para Pix limpa e desabilita o campo, evitando enviar uma combinação
+  // inconsistente.
+  private atualizarValidacaoParcelas(forma: FormaPagamento | null): void {
+    const parcelasControl = this.form.controls.parcelas;
+    if (forma === 'CARTAO_CREDITO') {
+      parcelasControl.enable({ emitEvent: false });
+      parcelasControl.setValidators([Validators.required]);
+    } else {
+      parcelasControl.reset(null, { emitEvent: false });
+      parcelasControl.disable({ emitEvent: false });
+      parcelasControl.clearValidators();
+    }
+    parcelasControl.updateValueAndValidity({ emitEvent: false });
+  }
 
   salvar(): void {
     if (this.form.invalid) {
@@ -89,6 +133,9 @@ export class ExpenseFormDialogComponent {
       categoria: valores.categoria as ExpensePayload['categoria'],
       data: dataIso,
       observacao: valores.observacao?.trim() || undefined,
+      formaPagamento: valores.formaPagamento as FormaPagamento,
+      parcelas:
+        valores.formaPagamento === 'CARTAO_CREDITO' ? valores.parcelas : null,
     };
 
     this.dialogRef.close(payload);

@@ -53,11 +53,11 @@ export class PaymentMethodChartsComponent {
 
   readonly cores = CORES_FORMAS_PAGAMENTO;
 
-  readonly rotulos = ['Pix', 'Crédito 1x', 'Crédito parcelado', 'Não identificado'];
+  readonly rotulos = ['Pix', 'Crédito 1x', 'Crédito parcelado', 'Não informado'];
 
   readonly valorSeries = computed<ApexNonAxisChartSeries>(() => {
     const r = this.resumo();
-    return [r.pix.valor, r.creditoAvista.valor, r.creditoParcelado.valor, r.naoIdentificado.valor].map(
+    return [r.pix.valor, r.creditoAvista.valor, r.creditoParcelado.valor, r.naoInformado.valor].map(
       (v) => Number(v.toFixed(2)),
     );
   });
@@ -71,7 +71,7 @@ export class PaymentMethodChartsComponent {
           r.pix.quantidade,
           r.creditoAvista.quantidade,
           r.creditoParcelado.quantidade,
-          r.naoIdentificado.quantidade,
+          r.naoInformado.quantidade,
         ],
       },
     ];

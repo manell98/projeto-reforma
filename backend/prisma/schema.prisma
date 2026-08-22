@@ -27,15 +27,27 @@ enum Categoria {
   OUTROS
 }
 
+// Forma de pagamento estruturada da despesa. Substitui a antiga inferência
+// por parsing da observação (texto livre) — a partir de agora é a única
+// fonte de verdade para a aba "Formas de pagamento". Nullable porque
+// despesas cadastradas antes desse campo existir não têm essa informação
+// e devem aparecer como "não informado", nunca deduzida da observação.
+enum FormaPagamento {
+  PIX
+  CARTAO_CREDITO
+}
+
 model Expense {
-  id          String    @id @default(uuid())
-  valor       Decimal   @db.Decimal(12, 2)
-  descricao   String
-  categoria   Categoria
-  data        DateTime  @db.Date
-  observacao  String?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id             String          @id @default(uuid())
+  valor          Decimal         @db.Decimal(12, 2)
+  descricao      String
+  categoria      Categoria
+  data           DateTime        @db.Date
+  observacao     String?
+  formaPagamento FormaPagamento?
+  parcelas       Int?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
 
   @@index([data])
   @@index([categoria])

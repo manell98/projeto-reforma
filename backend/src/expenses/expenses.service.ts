@@ -1,5 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { Expense, Prisma } from '@prisma/client';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { Expense, FormaPagamento, Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateExpenseDto } from './dto/create-expense.dto';
 import { UpdateExpenseDto } from './dto/update-expense.dto';
@@ -12,6 +16,11 @@ export class ExpensesService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(dto: CreateExpenseDto): Promise<SerializedExpense> {
+    const { formaPagamento, parcelas } = this.normalizarFormaPagamento(
+      dto.formaPagamento,
+      dto.parcelas,
+    );
+
     const expense = await this.prisma.expense.create({
       data: {
         valor: dto.valor,
@@ -19,6 +28,8 @@ export class ExpensesService {
         categoria: dto.categoria,
         data: new Date(dto.data),
         observacao: dto.observacao,
+        formaPagamento,
+        parcelas,
       },
     });
     return this.serialize(expense);
@@ -59,7 +70,18 @@ export class ExpensesService {
   }
 
   async update(id: string, dto: UpdateExpenseDto): Promise<SerializedExpense> {
-    await this.findOne(id);
+    const existente = await this.findOne(id);
+
+    const alteraFormaPagamento =
+      dto.formaPagamento !== undefined || dto.parcelas !== undefined;
+    const formaPagamentoNormalizada = alteraFormaPagamento
+      ? this.normalizarFormaPagamento(
+          dto.formaPagamento !== undefined
+            ? dto.formaPagamento
+            : existente.formaPagamento,
+          dto.parcelas !== undefined ? dto.parcelas : existente.parcelas,
+        )
+      : null;
 
     const expense = await this.prisma.expense.update({
       where: { id },
@@ -69,6 +91,7 @@ export class ExpensesService {
         ...(dto.categoria !== undefined ? { categoria: dto.categoria } : {}),
         ...(dto.data !== undefined ? { data: new Date(dto.data) } : {}),
         ...(dto.observacao !== undefined ? { observacao: dto.observacao } : {}),
+        ...(formaPagamentoNormalizada ?? {}),
       },
     });
 
@@ -78,6 +101,24 @@ export class ExpensesService {
   async remove(id: string): Promise<void> {
     await this.findOne(id);
     await this.prisma.expense.delete({ where: { id } });
+  }
+
+  // Cartão de crédito sempre exige parcelas (1 a 12); Pix nunca carrega
+  // parcelas — qualquer valor recebido junto de PIX é ignorado, em vez de
+  // rejeitado, para não travar o formulário numa combinação transitória.
+  private normalizarFormaPagamento(
+    formaPagamento: FormaPagamento | null,
+    parcelas: number | null | undefined,
+  ): { formaPagamento: FormaPagamento | null; parcelas: number | null } {
+    if (formaPagamento === FormaPagamento.CARTAO_CREDITO) {
+      if (parcelas === undefined || parcelas === null) {
+        throw new BadRequestException(
+          'Informe a quantidade de parcelas para pagamento no cartão de crédito.',
+        );
+      }
+      return { formaPagamento, parcelas };
+    }
+    return { formaPagamento: formaPagamento ?? null, parcelas: null };
   }
 
   private serialize(expense: Expense): SerializedExpense {
