@@ -319,6 +319,27 @@ export class ExpenseStoreService {
     return this.expenseService.remove(id);
   }
 
+  // Atualiza a lista localmente em vez de refazer o GET /expenses inteiro
+  // após criar/editar/excluir — evita o "flash" de loading que desmontava a
+  // tabela inteira e jogava a página pro topo a cada salvamento.
+  adicionarDespesaLocal(despesa: Expense): void {
+    this._expenses.update((atual) =>
+      [...atual, despesa].sort((a, b) => (a.data < b.data ? 1 : a.data > b.data ? -1 : 0)),
+    );
+  }
+
+  atualizarDespesaLocal(despesa: Expense): void {
+    this._expenses.update((atual) =>
+      atual
+        .map((item) => (item.id === despesa.id ? despesa : item))
+        .sort((a, b) => (a.data < b.data ? 1 : a.data > b.data ? -1 : 0)),
+    );
+  }
+
+  removerDespesaLocal(id: string): void {
+    this._expenses.update((atual) => atual.filter((item) => item.id !== id));
+  }
+
   atualizarOrcamento(tipo: OrcamentoTipo, valor: number) {
     return this.orcamentoService.atualizar(tipo, valor);
   }

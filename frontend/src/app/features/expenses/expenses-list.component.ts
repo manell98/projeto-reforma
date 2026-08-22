@@ -89,11 +89,11 @@ export class ExpensesListComponent {
     ref.afterClosed().subscribe((payload) => {
       if (!payload) return;
       this.store.criar(payload).subscribe({
-        next: () => {
+        next: (despesaCriada) => {
           this.snackBar.open('Despesa cadastrada com sucesso.', 'Fechar', {
             duration: 3000,
           });
-          this.store.carregarDespesas();
+          this.store.adicionarDespesaLocal(despesaCriada);
         },
         error: () =>
           this.snackBar.open(

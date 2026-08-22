@@ -60,11 +60,11 @@ export class ExpenseTableComponent {
     ref.afterClosed().subscribe((payload) => {
       if (!payload) return;
       this.store.atualizar(expense.id, payload).subscribe({
-        next: () => {
+        next: (despesaAtualizada) => {
           this.snackBar.open('Despesa atualizada com sucesso.', 'Fechar', {
             duration: 3000,
           });
-          this.store.carregarDespesas();
+          this.store.atualizarDespesaLocal(despesaAtualizada);
         },
         error: () =>
           this.snackBar.open(
@@ -92,7 +92,7 @@ export class ExpenseTableComponent {
           this.snackBar.open('Despesa excluída.', 'Fechar', {
             duration: 3000,
           });
-          this.store.carregarDespesas();
+          this.store.removerDespesaLocal(expense.id);
         },
         error: () =>
           this.snackBar.open(
