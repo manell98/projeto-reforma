@@ -14,7 +14,11 @@
     <mat-card-content>
       <div class="budget-heading">
         <div class="budget-title">
-          <span class="icon-badge" [class.danger]="store.orcamentoExcedido()">
+          <span
+            class="icon-badge"
+            [class.danger]="store.orcamentoExcedido()"
+            [class.success]="!store.orcamentoExcedido()"
+          >
             <mat-icon>account_balance_wallet</mat-icon>
           </span>
           <div>
@@ -23,7 +27,8 @@
               <span class="metric-label">Saldo disponível</span>
               <span
                 class="metric-value is-hero"
-                [class.is-negative]="store.saldo() < 0"
+                [class.is-negative]="store.orcamentoExcedido()"
+                [class.is-positive]="!store.orcamentoExcedido()"
                 >{{
                   store.saldo() | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR'
                 }}</span
@@ -63,6 +68,7 @@
           <span
             class="metric-value"
             [class.is-negative]="store.orcamentoExcedido()"
+            [class.is-positive]="!store.orcamentoExcedido()"
             >{{ store.percentualConsumido() | number: '1.0-1' }}%</span
           >
         </div>

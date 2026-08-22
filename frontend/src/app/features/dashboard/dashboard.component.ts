@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { MatIconModule } from '@angular/material/icon';
 import { BudgetIndicatorComponent } from './components/budget-indicator/budget-indicator.component';
 import { DuracaoObraCardComponent } from './components/duracao-obra-card/duracao-obra-card.component';
 import { SummaryCardsComponent } from './components/summary-cards/summary-cards.component';
@@ -9,6 +10,7 @@ import { OrcamentoEspecificoPanelComponent } from '../settings/orcamento-config/
   selector: 'app-dashboard',
   standalone: true,
   imports: [
+    MatIconModule,
     BudgetIndicatorComponent,
     DuracaoObraCardComponent,
     SummaryCardsComponent,

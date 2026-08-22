@@ -77,9 +77,9 @@ body {
 
   h1 {
     margin: 0;
-    font-size: 1.6rem;
-    font-weight: 700;
-    letter-spacing: -0.01em;
+    font-size: 1.75rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
     color: var(--color-text-primary);
   }
 
@@ -90,6 +90,35 @@ body {
   }
 }
 
+// Bloco opcional de título com ícone de destaque à esquerda — usado pelas
+// páginas que adotam o cabeçalho "moderno" (ícone em badge com gradiente +
+// título). Puramente aditivo: páginas que ainda usam só `.page-header > div`
+// sem essas classes continuam funcionando exatamente como antes.
+.page-header-title {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.page-header-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, #2f5fd0 0%, #6ea8fe 100%);
+  color: #fff;
+  flex-shrink: 0;
+  box-shadow: 0 6px 14px rgba(47, 95, 208, 0.28);
+
+  mat-icon {
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+  }
+}
+
 // Base consistente para todos os mat-card do app: cantos mais arredondados,
 // sombra sutil no lugar da elevação padrão do Material, borda quase
 // imperceptível para dar contorno em fundos claros.
@@ -97,11 +126,12 @@ body {
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
   border: 1px solid var(--color-border);
-  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
 }
 
 .mat-mdc-card.mdc-card:hover {
   box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
 }
 
 .mat-mdc-card-header .mat-mdc-card-title {
@@ -166,6 +196,13 @@ body {
 
 .metric-value.is-negative {
   color: var(--color-danger);
+}
+
+// Verde para valores "dentro do orçamento" — mesma regra `saldo < 0` já usada
+// para acionar `.is-negative`/`.excedido`, só a expressão visual do lado
+// oposto (positivo/dentro do limite).
+.metric-value.is-positive {
+  color: var(--color-success);
 }
 
 .metric-value.is-hero {

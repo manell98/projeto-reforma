@@ -95,6 +95,16 @@ export class ExpenseChartsComponent {
     labels: { style: { colors: TEXTO_COR } },
   };
 
+  // Eixo Y do card "Evolução dos gastos por mês" — mesmos valores do
+  // yaxisComTexto, mas com formatter em reais (ex: "R$ 1.000,00") em vez do
+  // número cru, seguindo o mesmo padrão de moeda já usado no tooltip.
+  readonly yaxisEvolucaoComMoeda: ApexYAxis = {
+    labels: {
+      style: { colors: TEXTO_COR },
+      formatter: (val: number) => this.formatarMoeda(val),
+    },
+  };
+
   readonly donutChart: ApexChart = {
     type: 'donut',
     height: 300,
