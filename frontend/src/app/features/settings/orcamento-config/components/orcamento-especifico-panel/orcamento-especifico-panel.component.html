@@ -60,13 +60,21 @@
         </div>
         <div class="metric">
           <span class="metric-label">Saldo</span>
-          <span class="metric-value" [class.is-negative]="saldo() < 0">{{
-            saldo() | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR'
-          }}</span>
+          <span
+            class="metric-value"
+            [class.is-negative]="excedido()"
+            [class.is-positive]="!excedido()"
+            >{{
+              saldo() | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR'
+            }}</span
+          >
         </div>
         <div class="metric">
           <span class="metric-label">% consumido</span>
-          <span class="metric-value" [class.is-negative]="excedido()"
+          <span
+            class="metric-value"
+            [class.is-negative]="excedido()"
+            [class.is-positive]="!excedido()"
             >{{ percentualConsumido() | number: '1.0-1' }}%</span
           >
         </div>
