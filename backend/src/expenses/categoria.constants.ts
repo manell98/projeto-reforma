@@ -12,7 +12,7 @@ export const CATEGORIA_LABELS: Record<Categoria, string> = {
   [Categoria.LADRILHEIRO]: 'Ladrilheiro',
   [Categoria.INSTALADOR_PORTA]: 'Instalador de porta',
   [Categoria.TIO_NEGUINHO]: 'Tio Neguinho (responsável pela obra)',
-  [Categoria.ALUGUEL_MATERIAIS]: 'Aluguel de materiais',
+  [Categoria.ALUGUEL_MATERIAIS]: 'Aluguel de equipamentos',
   [Categoria.REMOCAO_ENTULHO]: 'Remoção de entulho',
   [Categoria.ARQUITETO]: 'Arquiteto',
   [Categoria.OUTROS]: 'Outros',
