@@ -24,6 +24,13 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'evolucao',
+    loadComponent: () =>
+      import('./features/evolucao/evolucao.component').then(
+        (m) => m.EvolucaoComponent,
+      ),
+  },
+  {
     path: 'configuracoes/orcamento',
     loadComponent: () =>
       import(

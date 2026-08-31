@@ -1,0 +1,55 @@
+<div class="visualizador">
+  <div class="palco">
+    @if (registro.tipo === 'VIDEO') {
+      <video [src]="url()" controls autoplay preload="metadata"></video>
+    } @else {
+      <img [src]="url()" [alt]="registro.titulo ?? registro.arquivoNome" />
+    }
+
+    <span class="tipo-chip" [class.video]="registro.tipo === 'VIDEO'">
+      <mat-icon>{{ registro.tipo === 'VIDEO' ? 'movie' : 'photo_camera' }}</mat-icon>
+      {{ registro.tipo === 'VIDEO' ? 'Vídeo' : 'Foto' }}
+    </span>
+
+    <button
+      mat-icon-button
+      class="fechar"
+      aria-label="Fechar"
+      matTooltip="Fechar"
+      (click)="dialogRef.close()"
+    >
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <div class="detalhes">
+    <h2>{{ registro.titulo || registro.arquivoNome }}</h2>
+
+    @if (registro.descricao) {
+      <p class="descricao">{{ registro.descricao }}</p>
+    }
+
+    <p class="captura">
+      <mat-icon>event</mat-icon>
+      <span
+        >Capturado em
+        {{ registro.dataCaptura | date: 'dd/MM/yyyy' : 'UTC' : 'pt-BR' }}</span
+      >
+      <span class="origem">({{ origemLabel }})</span>
+    </p>
+
+    <div class="linhas">
+      <p>
+        <mat-icon>cloud_upload</mat-icon>
+        <span
+          >Enviado em
+          {{ registro.createdAt | date: "dd/MM/yyyy 'às' HH:mm" : undefined : 'pt-BR' }}</span
+        >
+      </p>
+      <p>
+        <mat-icon>description</mat-icon>
+        <span>{{ registro.arquivoNome }}</span>
+      </p>
+    </div>
+  </div>
+</div>

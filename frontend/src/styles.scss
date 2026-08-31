@@ -384,6 +384,31 @@ body {
   white-space: nowrap;
 }
 
+// Painel do visualizador de fotos/vídeos da evolução da obra: a mídia encosta
+// nas bordas do diálogo, então o recorte tem que acontecer na própria surface.
+.visualizador-panel .mat-mdc-dialog-surface {
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+}
+
+// Fundo bem mais escuro que o padrão do Material: é um lightbox, a página
+// atrás precisa sumir para a foto/vídeo ficar sozinha em cena.
+.visualizador-backdrop.cdk-overlay-backdrop {
+  background: rgba(8, 12, 22, 0.82);
+}
+
+// Bloco de ações em ícone de uma listagem (tabela de despesas, cards da
+// evolução da obra). Mantém editar/excluir sempre lado a lado na mesma linha
+// — sem isso os botões quebram um embaixo do outro quando a coluna/cabeçalho
+// fica estreito.
+.acoes-linha {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  white-space: nowrap;
+}
+
 .empty-state {
   display: flex;
   flex-direction: column;

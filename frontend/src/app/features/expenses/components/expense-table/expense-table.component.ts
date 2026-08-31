@@ -17,6 +17,10 @@ import {
   ExpenseFormDialogComponent,
   ExpenseFormDialogData,
 } from '../expense-form-dialog/expense-form-dialog.component';
+import {
+  formaPagamentoLabel,
+  parcelasLabel,
+} from '../../../../shared/utils/forma-pagamento.util';
 
 @Component({
   selector: 'app-expense-table',
@@ -45,9 +49,21 @@ export class ExpenseTableComponent {
     'data',
     'descricao',
     'categoria',
+    'formaPagamento',
+    'parcelas',
     'valor',
     'acoes',
   ];
+
+  readonly formaPagamentoLabel = formaPagamentoLabel;
+  readonly parcelasLabel = parcelasLabel;
+
+  // Mesmos ícones já usados na tela de formas de pagamento.
+  iconeFormaPagamento(despesa: Expense): string {
+    if (despesa.formaPagamento === 'PIX') return 'qr_code_2';
+    if (despesa.formaPagamento === 'CARTAO_CREDITO') return 'credit_card';
+    return 'help_outline';
+  }
 
   editar(expense: Expense): void {
     const ref = this.dialog.open<

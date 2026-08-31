@@ -1,4 +1,29 @@
-import { Expense } from '../../core/models/expense.model';
+import { Expense, FormaPagamento } from '../../core/models/expense.model';
+
+// Rótulo direto da forma de pagamento persistida (sem o agrupamento de
+// relatório abaixo), usado nas listagens de despesa.
+export const FORMA_PAGAMENTO_LABELS: Record<FormaPagamento, string> = {
+  PIX: 'Pix',
+  CARTAO_CREDITO: 'Cartão de crédito',
+};
+
+export const FORMA_PAGAMENTO_NAO_INFORMADO = 'Não informado';
+
+export function formaPagamentoLabel(despesa: Expense): string {
+  return despesa.formaPagamento
+    ? FORMA_PAGAMENTO_LABELS[despesa.formaPagamento]
+    : FORMA_PAGAMENTO_NAO_INFORMADO;
+}
+
+/**
+ * Quantidade de parcelas para exibição. Pix nunca tem parcelas (o campo é
+ * null por definição), então vira um traço — nunca "null" ou "0".
+ */
+export function parcelasLabel(despesa: Expense): string {
+  return despesa.formaPagamento === 'CARTAO_CREDITO' && despesa.parcelas
+    ? `${despesa.parcelas}x`
+    : '—';
+}
 
 // Agrupamento de exibição para a aba "Formas de pagamento": Pix e Cartão de
 // crédito (`Expense.formaPagamento`) são os valores estruturados persistidos;

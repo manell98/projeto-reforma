@@ -1,0 +1,87 @@
+<article class="registro-card">
+  <button
+    type="button"
+    class="midia"
+    [class.video]="registro().tipo === 'VIDEO'"
+    (click)="abrir.emit(registro())"
+    [attr.aria-label]="'Abrir ' + (registro().titulo ?? registro().arquivoNome)"
+  >
+    @if (registro().tipo === 'VIDEO') {
+      <!-- preload="metadata" faz o próprio navegador exibir o primeiro quadro
+           como capa, sem precisar gerar thumbnail no servidor. Como esse quadro
+           pode ser preto/ambíguo, a identificação de vídeo vem do selo e do
+           botão de play sobrepostos, nunca da imagem em si. -->
+      <video
+        [src]="url()"
+        preload="metadata"
+        muted
+        playsinline
+        (loadedmetadata)="registrarDuracao($event)"
+      ></video>
+      <span class="play">
+        <mat-icon>play_arrow</mat-icon>
+      </span>
+      @if (duracao(); as tempo) {
+        <span class="duracao">{{ tempo }}</span>
+      }
+    } @else {
+      <img [src]="url()" [alt]="registro().titulo ?? registro().arquivoNome" />
+    }
+
+    <span class="tipo-chip" [class.video]="registro().tipo === 'VIDEO'">
+      <mat-icon>{{
+        registro().tipo === 'VIDEO' ? 'movie' : 'photo_camera'
+      }}</mat-icon>
+      {{ registro().tipo === 'VIDEO' ? 'Vídeo' : 'Foto' }}
+    </span>
+  </button>
+
+  <div class="conteudo">
+    <p class="titulo">{{ registro().titulo || registro().arquivoNome }}</p>
+
+    @if (registro().descricao) {
+      <p class="descricao">{{ registro().descricao }}</p>
+    }
+
+    <div class="rodape">
+      <p class="captura">
+        <mat-icon>event</mat-icon>
+        <span>{{
+          registro().dataCaptura | date: 'dd/MM/yyyy' : 'UTC' : 'pt-BR'
+        }}</span>
+      </p>
+
+      <span class="acoes-linha">
+        <button
+          mat-icon-button
+          matTooltip="Editar"
+          (click)="editar.emit(registro())"
+        >
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button
+          mat-icon-button
+          color="warn"
+          matTooltip="Excluir"
+          (click)="excluir.emit(registro())"
+        >
+          <mat-icon>delete</mat-icon>
+        </button>
+      </span>
+    </div>
+
+    <!-- createdAt é um instante real (upload), por isso exibido no fuso local
+         (e só no tooltip), sem forçar UTC como na data de captura. -->
+    <p
+      class="secundaria"
+      [matTooltip]="
+        origemLabel() +
+        ' · Enviado em ' +
+        (registro().createdAt | date: 'dd/MM/yyyy HH:mm' : undefined : 'pt-BR')
+      "
+    >
+      <mat-icon>{{ origemIcone() }}</mat-icon>
+      <span>{{ origemResumo() }} · {{ tamanhoLegivel() }}</span>
+    </p>
+  </div>
+</article>

@@ -30,18 +30,30 @@
         }
       </div>
     } @else {
+      <p class="scroll-hint">
+        <mat-icon>swipe</mat-icon>
+        <span>Deslize a tabela para o lado para ver todas as colunas</span>
+      </p>
+
       <div class="table-wrapper">
         <table mat-table [dataSource]="despesas()">
           <ng-container matColumnDef="data">
-            <th mat-header-cell *matHeaderCellDef>Data</th>
-            <td mat-cell *matCellDef="let despesa">
+            <th mat-header-cell *matHeaderCellDef class="col-data">Data</th>
+            <td mat-cell *matCellDef="let despesa" class="col-data" data-label="Data">
               {{ despesa.data | date: 'dd/MM/yyyy' : 'UTC' : 'pt-BR' }}
             </td>
           </ng-container>
 
           <ng-container matColumnDef="descricao">
-            <th mat-header-cell *matHeaderCellDef>Descrição</th>
-            <td mat-cell *matCellDef="let despesa">
+            <th mat-header-cell *matHeaderCellDef class="col-descricao">
+              Descrição
+            </th>
+            <td
+              mat-cell
+              *matCellDef="let despesa"
+              class="col-descricao"
+              data-label="Descrição"
+            >
               <span class="descricao-principal">{{ despesa.descricao }}</span>
               @if (despesa.observacao) {
                 <span class="descricao-obs">{{ despesa.observacao }}</span>
@@ -50,17 +62,65 @@
           </ng-container>
 
           <ng-container matColumnDef="categoria">
-            <th mat-header-cell *matHeaderCellDef>Categoria</th>
-            <td mat-cell *matCellDef="let despesa">
+            <th mat-header-cell *matHeaderCellDef class="col-categoria">
+              Categoria
+            </th>
+            <td
+              mat-cell
+              *matCellDef="let despesa"
+              class="col-categoria"
+              data-label="Categoria"
+            >
               <span class="category-chip">{{
                 store.categoriaLabels().get(despesa.categoria)
               }}</span>
             </td>
           </ng-container>
 
+          <ng-container matColumnDef="formaPagamento">
+            <th mat-header-cell *matHeaderCellDef class="col-forma">
+              Forma de pagamento
+            </th>
+            <td
+              mat-cell
+              *matCellDef="let despesa"
+              class="col-forma"
+              data-label="Forma de pagamento"
+            >
+              <span
+                class="forma-chip"
+                [class.pix]="despesa.formaPagamento === 'PIX'"
+                [class.sem-informacao]="!despesa.formaPagamento"
+              >
+                <mat-icon>{{ iconeFormaPagamento(despesa) }}</mat-icon>
+                {{ formaPagamentoLabel(despesa) }}
+              </span>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="parcelas">
+            <th mat-header-cell *matHeaderCellDef class="col-parcelas">
+              Parcelas
+            </th>
+            <td
+              mat-cell
+              *matCellDef="let despesa"
+              class="col-parcelas"
+              [class.sem-parcelas]="!despesa.parcelas"
+              data-label="Parcelas"
+            >
+              {{ parcelasLabel(despesa) }}
+            </td>
+          </ng-container>
+
           <ng-container matColumnDef="valor">
             <th mat-header-cell *matHeaderCellDef class="col-valor">Valor</th>
-            <td mat-cell *matCellDef="let despesa" class="col-valor">
+            <td
+              mat-cell
+              *matCellDef="let despesa"
+              class="col-valor"
+              data-label="Valor"
+            >
               {{
                 despesa.valor | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR'
               }}
@@ -70,21 +130,23 @@
           <ng-container matColumnDef="acoes">
             <th mat-header-cell *matHeaderCellDef class="col-acoes"></th>
             <td mat-cell *matCellDef="let despesa" class="col-acoes">
-              <button
-                mat-icon-button
-                matTooltip="Editar"
-                (click)="editar(despesa)"
-              >
-                <mat-icon>edit</mat-icon>
-              </button>
-              <button
-                mat-icon-button
-                matTooltip="Excluir"
-                color="warn"
-                (click)="excluir(despesa)"
-              >
-                <mat-icon>delete</mat-icon>
-              </button>
+              <div class="acoes-linha">
+                <button
+                  mat-icon-button
+                  matTooltip="Editar"
+                  (click)="editar(despesa)"
+                >
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button
+                  mat-icon-button
+                  matTooltip="Excluir"
+                  color="warn"
+                  (click)="excluir(despesa)"
+                >
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
             </td>
           </ng-container>
 

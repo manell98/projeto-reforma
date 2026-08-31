@@ -1,5 +1,30 @@
+// A largura útil da tabela depende da sidenav (aberta em desktop, sobreposta
+// em mobile), não da largura da janela — por isso o card é um container de
+// consulta e as regras responsivas abaixo usam @container em vez de @media.
+.table-card {
+  container-type: inline-size;
+  container-name: tabela;
+}
+
+// As sombras nas bordas aparecem só quando há conteúdo cortado para aquele
+// lado: os gradientes brancos rolam junto com o conteúdo (background-attachment
+// local) e "apagam" a sombra correspondente quando o extremo está visível.
 .table-wrapper {
   overflow-x: auto;
+  background:
+    linear-gradient(to right, #fff 40%, rgba(255, 255, 255, 0)) left center,
+    linear-gradient(to left, #fff 40%, rgba(255, 255, 255, 0)) right center,
+    radial-gradient(farthest-side at 0 50%, rgba(15, 23, 42, 0.16), transparent)
+      left center,
+    radial-gradient(
+        farthest-side at 100% 50%,
+        rgba(15, 23, 42, 0.16),
+        transparent
+      )
+      right center;
+  background-repeat: no-repeat;
+  background-size: 32px 100%, 32px 100%, 12px 100%, 12px 100%;
+  background-attachment: local, local, scroll, scroll;
 }
 
 table {
@@ -12,6 +37,7 @@ th.mat-mdc-header-cell {
   text-transform: uppercase;
   letter-spacing: 0.04em;
   color: var(--color-text-muted);
+  white-space: nowrap;
 }
 
 tr.mat-mdc-row {
@@ -22,15 +48,94 @@ tr.mat-mdc-row:hover {
   background-color: var(--color-hover);
 }
 
+.col-data {
+  width: 104px;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-secondary);
+}
+
+// A descrição absorve toda a sobra de largura da tabela (width 100%), enquanto
+// as colunas de chips ficam no tamanho do conteúdo (width 1%); o mínimo evita
+// que ela quebre palavra a palavra quando não há sobra nenhuma.
+.col-descricao {
+  width: 100%;
+  min-width: 240px;
+}
+
+.col-categoria {
+  width: 1%;
+}
+
+.col-forma {
+  width: 1%;
+  white-space: nowrap;
+}
+
 .col-valor {
+  width: 130px;
   text-align: right;
   font-variant-numeric: tabular-nums;
   font-weight: 600;
+  white-space: nowrap;
 }
 
-.col-acoes {
-  width: 96px;
+.col-parcelas {
+  width: 92px;
   text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+// O traço das despesas sem parcelas (Pix) é ausência de informação, não um
+// valor — fica apagado para não competir com os "3x" da coluna.
+.col-parcelas.sem-parcelas {
+  color: var(--color-text-muted);
+}
+
+// Largura suficiente para os dois botões de ícone caberem lado a lado mesmo
+// com as colunas de forma de pagamento/parcelas na tabela (o alinhamento em
+// si vem da classe compartilhada .acoes-linha).
+.col-acoes {
+  width: 112px;
+  min-width: 112px;
+  text-align: right;
+  white-space: nowrap;
+}
+
+// Contorno em vez de fundo tingido: a coluna de categoria já usa o chip azul
+// preenchido (.category-chip) e duas colunas de chips cheios lado a lado viram
+// ruído. Aqui só o ícone recebe a cor da forma de pagamento.
+.forma-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px 3px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--color-border);
+  background: #fff;
+  color: var(--color-text-secondary);
+  font-size: 0.78rem;
+  font-weight: 600;
+
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    color: var(--color-info);
+  }
+
+  &.pix mat-icon {
+    color: var(--color-success);
+  }
+
+  &.sem-informacao {
+    color: var(--color-text-muted);
+
+    mat-icon {
+      color: var(--color-text-muted);
+    }
+  }
 }
 
 .descricao-principal {
@@ -43,6 +148,21 @@ tr.mat-mdc-row:hover {
   display: block;
   font-size: 0.75rem;
   color: var(--color-text-muted);
+}
+
+.scroll-hint {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 10px;
+  font-size: 0.76rem;
+  color: var(--color-text-muted);
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
 }
 
 .table-status {
@@ -67,5 +187,115 @@ tr.mat-mdc-row:hover {
     mat-icon {
       color: var(--color-danger);
     }
+  }
+}
+
+// Faixa intermediária: ainda é uma tabela, mas já não cabe inteira — o aviso
+// de deslizar acompanha as sombras de rolagem do .table-wrapper.
+@container tabela (max-width: 1000px) {
+  .scroll-hint {
+    display: flex;
+  }
+}
+
+// Abaixo disso a tabela deixa de ser legível como grade: cada despesa vira um
+// cartão com os rótulos das colunas ao lado do valor (vindos do data-label),
+// sem esconder nenhuma informação.
+@container tabela (max-width: 700px) {
+  .scroll-hint {
+    display: none;
+  }
+
+  .table-wrapper {
+    overflow-x: visible;
+    background: none;
+  }
+
+  table.mat-mdc-table {
+    display: block;
+    background: transparent;
+  }
+
+  // O <thead>/<tbody> são criados em runtime pelo mat-table, então não
+  // carregam o atributo de encapsulamento do componente e só podem ser
+  // alcançados por ::ng-deep — que aqui fica preso ao host desta tabela.
+  :host ::ng-deep thead {
+    display: none;
+  }
+
+  :host ::ng-deep tbody {
+    display: block;
+  }
+
+  tr.mat-mdc-row {
+    display: block;
+    height: auto;
+    padding: 12px 14px;
+    margin-bottom: 12px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: #fff;
+    box-shadow: var(--shadow-xs);
+  }
+
+  tr.mat-mdc-row:last-of-type {
+    margin-bottom: 0;
+  }
+
+  // `justify-content: flex-end` + `margin-right: auto` no rótulo mantém o par
+  // rótulo-à-esquerda/valor-à-direita e, quando os dois não cabem na mesma
+  // linha, o valor desce alinhado à direita em vez de estourar o cartão.
+  td.mat-mdc-cell {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: flex-end;
+    gap: 2px 16px;
+    width: auto;
+    min-width: 0;
+    padding: 5px 0;
+    border: none;
+    text-align: right;
+  }
+
+  td.mat-mdc-cell::before {
+    content: attr(data-label);
+    flex: 0 0 auto;
+    margin-right: auto;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--color-text-muted);
+    text-align: left;
+  }
+
+  // Descrição e ações ocupam a linha inteira: a primeira é o título do cartão,
+  // as segundas são o rodapé.
+  td.col-descricao {
+    display: block;
+    padding: 0 0 8px;
+    text-align: left;
+  }
+
+  td.col-descricao::before {
+    content: none;
+  }
+
+  td.col-valor {
+    font-size: 1.05rem;
+  }
+
+  td.col-acoes {
+    width: auto;
+    min-width: 0;
+    justify-content: flex-end;
+    margin-top: 4px;
+    padding-top: 6px;
+    border-top: 1px solid var(--color-border);
+  }
+
+  td.col-acoes::before {
+    content: none;
   }
 }

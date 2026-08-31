@@ -86,3 +86,48 @@ model Obra {
 
   @@map("obra")
 }
+
+// --- Evolução da obra ----------------------------------------------------
+// Registros de foto/vídeo do andamento da obra. O arquivo em si fica no
+// disco (dentro de UPLOAD_DIR/evolucao), não no banco — aqui ficam só os
+// metadados e o caminho relativo gerado pelo servidor.
+enum TipoMidia {
+  FOTO
+  VIDEO
+}
+
+// De onde veio a data de captura exibida: do EXIF da própria foto, da data
+// de modificação do arquivo, ou digitada à mão pelo usuário. Guardada para
+// a UI conseguir dizer o quão confiável é a data cronológica do registro.
+enum OrigemDataCaptura {
+  EXIF
+  ARQUIVO
+  MANUAL
+}
+
+model RegistroObra {
+  id String @id @default(uuid())
+
+  titulo    String?
+  descricao String?
+  tipo      TipoMidia
+
+  // `arquivoNome` é só o nome original enviado pelo usuário (metadado de
+  // exibição); o caminho real em disco (`arquivoPath`) é sempre gerado pelo
+  // servidor (uuid + extensão derivada do mime), nunca do nome do usuário.
+  arquivoNome  String
+  arquivoPath  String
+  mimeType     String
+  tamanhoBytes Int
+
+  // Quando a foto/vídeo foi TIRADA (data de calendário, igual a Expense.data),
+  // distinta de `createdAt`, que é o instante do upload.
+  dataCaptura       DateTime          @db.Date
+  origemDataCaptura OrigemDataCaptura
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([dataCaptura])
+  @@map("registros_obra")
+}

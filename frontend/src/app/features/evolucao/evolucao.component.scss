@@ -1,0 +1,159 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.estado {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 40px 16px;
+  color: var(--color-text-secondary);
+  text-align: center;
+
+  mat-icon {
+    font-size: 32px;
+    width: 32px;
+    height: 32px;
+    color: var(--color-text-muted);
+  }
+
+  &.erro {
+    color: var(--color-danger);
+
+    mat-icon {
+      color: var(--color-danger);
+    }
+  }
+}
+
+.empty-state button {
+  margin-top: 10px;
+}
+
+.timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+// Trilho vertical ligando os marcadores de cada dia: é o que transforma uma
+// pilha de grades soltas numa linha do tempo legível de cima para baixo.
+.dia {
+  position: relative;
+  padding-left: 30px;
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: 8px;
+    top: 24px;
+    bottom: -28px;
+    width: 2px;
+    background: var(--color-border);
+  }
+
+  &:last-of-type::before {
+    display: none;
+  }
+}
+
+.dia-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.dia-marcador {
+  position: absolute;
+  left: 0;
+  top: 6px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  border: 4px solid var(--color-info);
+  box-shadow: 0 0 0 4px var(--color-info-bg);
+}
+
+.dia-titulo {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  min-width: 0;
+
+  h2 {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    color: var(--color-text-primary);
+  }
+}
+
+.dia-semana {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+
+  &::first-letter {
+    text-transform: uppercase;
+  }
+}
+
+.dia-contagem {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--color-info-bg);
+  color: var(--color-info);
+  font-size: 0.72rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.grade {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+@media (max-width: 599px) {
+  .dia {
+    padding-left: 24px;
+
+    &::before {
+      left: 6px;
+    }
+  }
+
+  .dia-marcador {
+    width: 14px;
+    height: 14px;
+    border-width: 3px;
+    box-shadow: 0 0 0 3px var(--color-info-bg);
+  }
+
+  // Os quatro contadores são contexto, não o conteúdo da página: em duas
+  // colunas eles deixam de empurrar a galeria para fora da primeira tela.
+  .cards-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .summary-card {
+    padding: 12px;
+  }
+
+  .grade {
+    gap: 12px;
+  }
+}

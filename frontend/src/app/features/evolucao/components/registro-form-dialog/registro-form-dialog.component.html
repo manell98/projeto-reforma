@@ -1,0 +1,120 @@
+<h2 mat-dialog-title>
+  {{ editando ? 'Editar registro' : 'Novo registro da obra' }}
+</h2>
+
+<form [formGroup]="form" (ngSubmit)="salvar()">
+  <mat-dialog-content class="form-content">
+    @if (!editando) {
+      <input
+        #inputArquivo
+        type="file"
+        class="input-arquivo"
+        [accept]="mimesAceitos"
+        (change)="selecionarArquivo($event)"
+      />
+      <button
+        type="button"
+        class="dropzone"
+        [class.compacta]="arquivo()"
+        [disabled]="salvando()"
+        (click)="inputArquivo.click()"
+      >
+        <mat-icon>{{ arquivo() ? 'cached' : 'add_photo_alternate' }}</mat-icon>
+        <span class="dropzone-titulo">{{
+          arquivo() ? 'Trocar arquivo' : 'Escolher foto ou vídeo'
+        }}</span>
+        @if (!arquivo()) {
+          <span class="dropzone-hint">JPG, PNG, WEBP, HEIC, MP4, MOV ou WEBM</span>
+        }
+      </button>
+    }
+
+    @if (previewUrl(); as url) {
+      <div class="preview">
+        @if (ehVideo()) {
+          <video [src]="url" controls preload="metadata"></video>
+        } @else {
+          <img [src]="url" [alt]="arquivo()?.name ?? 'Registro da obra'" />
+        }
+      </div>
+    }
+
+    @if (arquivo(); as selecionado) {
+      <p class="arquivo-info">
+        <mat-icon>{{ ehVideo() ? 'movie' : 'image' }}</mat-icon>
+        <span>{{ selecionado.name }}</span>
+      </p>
+    }
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Título (opcional)</mat-label>
+      <input
+        matInput
+        formControlName="titulo"
+        placeholder="Ex: Contrapiso da sala"
+        maxlength="200"
+      />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Descrição (opcional)</mat-label>
+      <textarea
+        matInput
+        formControlName="descricao"
+        rows="2"
+        placeholder="O que essa foto/vídeo mostra"
+      ></textarea>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
+      <mat-label>Data de captura</mat-label>
+      <input matInput [matDatepicker]="picker" formControlName="dataCaptura" />
+      <mat-datepicker-toggle matIconSuffix [for]="picker" />
+      <mat-datepicker #picker />
+      <mat-hint>Quando a foto/vídeo foi tirada, não quando foi enviada</mat-hint>
+      @if (form.controls.dataCaptura.hasError('required')) {
+        <mat-error>Informe a data de captura.</mat-error>
+      }
+    </mat-form-field>
+
+    <p class="origem-chip">
+      <mat-icon>{{ origemIcone() }}</mat-icon>
+      <span>{{ origemLabel() }}</span>
+    </p>
+
+    @if (store.enviando()) {
+      <div class="progresso">
+        <div class="progresso-topo">
+          <span>Enviando arquivo...</span>
+          <strong>{{ store.progressoEnvio() }}%</strong>
+        </div>
+        <mat-progress-bar mode="determinate" [value]="store.progressoEnvio()" />
+      </div>
+    }
+
+    @if (erro(); as mensagem) {
+      <p class="erro">
+        <mat-icon>error_outline</mat-icon>
+        <span>{{ mensagem }}</span>
+      </p>
+    }
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" (click)="cancelar()" [disabled]="salvando()">
+      Cancelar
+    </button>
+    <button
+      mat-flat-button
+      color="primary"
+      type="submit"
+      class="botao-salvar"
+      [disabled]="salvando()"
+    >
+      @if (salvando()) {
+        <mat-spinner diameter="18" />
+      }
+      <span>{{ rotuloBotaoSalvar() }}</span>
+    </button>
+  </mat-dialog-actions>
+</form>

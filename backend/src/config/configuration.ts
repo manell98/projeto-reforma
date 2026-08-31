@@ -7,4 +7,9 @@ export default () => ({
   cors: {
     origin: process.env.CORS_ORIGIN || 'http://localhost:4200',
   },
+  upload: {
+    // Raiz dos arquivos enviados (fotos/vídeos da evolução da obra). Tem
+    // default, por isso não entra na lista de env vars obrigatórias.
+    dir: process.env.UPLOAD_DIR || './uploads',
+  },
 });

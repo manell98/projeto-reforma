@@ -23,6 +23,17 @@
         <span matListItemTitle>Visão geral</span>
       </a>
 
+      <div class="nav-section-label">Obra</div>
+      <a
+        mat-list-item
+        routerLink="/evolucao"
+        routerLinkActive="active-link"
+        (click)="fecharSidenavSeOverlay()"
+      >
+        <mat-icon matListItemIcon>photo_library</mat-icon>
+        <span matListItemTitle>Evolução da obra</span>
+      </a>
+
       <div class="nav-section-label">Despesas</div>
       <a
         mat-list-item

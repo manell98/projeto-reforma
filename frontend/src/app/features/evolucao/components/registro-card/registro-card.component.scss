@@ -1,0 +1,227 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.registro-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+
+  &:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+  }
+}
+
+// Proporção fixa para todas as capas: sem ela os cards de uma mesma linha
+// ficam com alturas diferentes conforme a foto seja retrato ou paisagem.
+.midia {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: none;
+  background: #0f172a;
+  cursor: pointer;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+
+  img,
+  video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.35s ease;
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--color-info);
+    outline-offset: -3px;
+  }
+}
+
+.registro-card:hover .midia img {
+  transform: scale(1.05);
+}
+
+// Escurece o topo e a base da capa para que o selo de tipo e a duração
+// continuem legíveis sobre fotos claras.
+.midia::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    rgba(15, 23, 42, 0.34) 0%,
+    rgba(15, 23, 42, 0) 28%,
+    rgba(15, 23, 42, 0) 68%,
+    rgba(15, 23, 42, 0.34) 100%
+  );
+}
+
+.play {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  transition: transform 0.2s ease;
+
+  mat-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 52px;
+    height: 52px;
+    font-size: 34px;
+    border-radius: 50%;
+    background: rgba(15, 23, 42, 0.62);
+    border: 2px solid rgba(255, 255, 255, 0.85);
+  }
+}
+
+.registro-card:hover .play {
+  transform: scale(1.08);
+}
+
+.duracao {
+  position: absolute;
+  z-index: 1;
+  right: 8px;
+  bottom: 8px;
+  padding: 2px 7px;
+  border-radius: var(--radius-sm);
+  background: rgba(15, 23, 42, 0.78);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.tipo-chip {
+  position: absolute;
+  z-index: 1;
+  top: 8px;
+  left: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px 3px 7px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.94);
+  color: var(--color-info);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  box-shadow: var(--shadow-xs);
+
+  mat-icon {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+  }
+
+  &.video {
+    color: var(--color-accent);
+  }
+}
+
+.conteudo {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 14px 10px;
+  min-width: 0;
+}
+
+.titulo {
+  margin: 0;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--color-text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.descricao {
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.35;
+  color: var(--color-text-secondary);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+// `margin-top: auto` alinha o rodapé de todos os cards da linha, mesmo quando
+// um tem descrição e o outro não.
+.rodape {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 8px;
+}
+
+// A data de captura é a informação principal do card: é por ela que a
+// timeline é organizada.
+.captura {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-size: 0.92rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-primary);
+
+  mat-icon {
+    font-size: 17px;
+    width: 17px;
+    height: 17px;
+    color: var(--color-info);
+  }
+}
+
+.secundaria {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+  min-width: 0;
+
+  mat-icon {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+  }
+
+  span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.acoes-linha {
+  flex-shrink: 0;
+}

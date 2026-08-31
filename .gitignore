@@ -17,3 +17,6 @@ npm-debug.log*
 .claude/worktrees/
 
 coverage/
+
+# Arquivos enviados pelo usuário (fotos/vídeos da evolução da obra)
+uploads/

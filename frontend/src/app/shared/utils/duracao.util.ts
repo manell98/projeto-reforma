@@ -32,3 +32,16 @@ export function formatarDuracaoAmigavel(dias: number): string {
   }
   return partes.join(' e ');
 }
+
+/**
+ * Formata um Date local como "YYYY-MM-DD". Usado para enviar datas de
+ * calendário à API (data da despesa, data de captura de um registro da obra)
+ * a partir do valor do datepicker, que é sempre meia-noite local.
+ */
+export function paraIsoLocal(data: Date): string {
+  return [
+    data.getFullYear(),
+    String(data.getMonth() + 1).padStart(2, '0'),
+    String(data.getDate()).padStart(2, '0'),
+  ].join('-');
+}

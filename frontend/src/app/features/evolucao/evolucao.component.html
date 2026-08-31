@@ -1,0 +1,130 @@
+<div class="page-header">
+  <div class="page-header-title">
+    <span class="page-header-icon">
+      <mat-icon>photo_library</mat-icon>
+    </span>
+    <div>
+      <h1>Evolução da obra</h1>
+      <p class="page-subtitle">
+        Fotos e vídeos do andamento, organizados pela data em que foram
+        capturados
+      </p>
+    </div>
+  </div>
+  <button mat-flat-button color="primary" (click)="novoRegistro()">
+    <mat-icon>add_a_photo</mat-icon>
+    Adicionar registro
+  </button>
+</div>
+
+<div class="cards-grid">
+  <mat-card class="summary-card">
+    <span class="icon-badge">
+      <mat-icon>collections</mat-icon>
+    </span>
+    <div class="card-body">
+      <span class="card-label">Registros</span>
+      <span class="card-value">{{ store.total() }}</span>
+    </div>
+  </mat-card>
+
+  <mat-card class="summary-card">
+    <span class="icon-badge success">
+      <mat-icon>photo_camera</mat-icon>
+    </span>
+    <div class="card-body">
+      <span class="card-label">Fotos</span>
+      <span class="card-value">{{ store.totalFotos() }}</span>
+    </div>
+  </mat-card>
+
+  <mat-card class="summary-card">
+    <span class="icon-badge accent">
+      <mat-icon>movie</mat-icon>
+    </span>
+    <div class="card-body">
+      <span class="card-label">Vídeos</span>
+      <span class="card-value">{{ store.totalVideos() }}</span>
+    </div>
+  </mat-card>
+
+  <mat-card class="summary-card">
+    <span class="icon-badge">
+      <mat-icon>event</mat-icon>
+    </span>
+    <div class="card-body">
+      <span class="card-label">Dias registrados</span>
+      <span class="card-value">{{ store.diasRegistrados() }}</span>
+    </div>
+  </mat-card>
+</div>
+
+@if (store.loading()) {
+  <mat-card>
+    <mat-card-content>
+      <div class="estado">
+        <mat-spinner diameter="32" />
+        <span>Carregando registros da obra...</span>
+      </div>
+    </mat-card-content>
+  </mat-card>
+} @else if (store.error()) {
+  <mat-card>
+    <mat-card-content>
+      <div class="estado erro">
+        <mat-icon>error_outline</mat-icon>
+        <span>{{ store.error() }}</span>
+        <button mat-button color="primary" (click)="store.carregar()">
+          Tentar novamente
+        </button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+} @else if (store.total() === 0) {
+  <mat-card>
+    <mat-card-content>
+      <div class="empty-state">
+        <mat-icon>photo_library</mat-icon>
+        <p>
+          Nenhuma foto ou vídeo por aqui ainda. Registre o primeiro dia da obra
+          e acompanhe a evolução ao longo do tempo.
+        </p>
+        <button mat-flat-button color="primary" (click)="novoRegistro()">
+          <mat-icon>add_a_photo</mat-icon>
+          Adicionar o primeiro registro
+        </button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+} @else {
+  <div class="timeline">
+    @for (dia of store.porDia(); track dia.data) {
+      <section class="dia">
+        <header class="dia-header">
+          <span class="dia-marcador"></span>
+          <div class="dia-titulo">
+            <h2>{{ dia.data | date: "dd 'de' MMMM 'de' y" : 'UTC' : 'pt-BR' }}</h2>
+            <span class="dia-semana">{{
+              dia.data | date: 'EEEE' : 'UTC' : 'pt-BR'
+            }}</span>
+          </div>
+          <span class="dia-contagem">
+            {{ dia.registros.length }}
+            {{ dia.registros.length === 1 ? 'registro' : 'registros' }}
+          </span>
+        </header>
+
+        <div class="grade">
+          @for (registro of dia.registros; track registro.id) {
+            <app-registro-card
+              [registro]="registro"
+              (abrir)="abrir($event)"
+              (editar)="editar($event)"
+              (excluir)="excluir($event)"
+            />
+          }
+        </div>
+      </section>
+    }
+  </div>
+}
