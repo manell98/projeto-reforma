@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject } from '@angular/core';
+import { Component, HostListener, computed, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import {
   MAT_DIALOG_DATA,
@@ -15,7 +15,9 @@ import {
 } from '../../../../core/models/registro-obra.model';
 
 export interface VisualizadorDialogData {
-  registro: RegistroObra;
+  /** Álbum do dia ao qual o item aberto pertence, na ordem exibida em tela. */
+  registros: RegistroObra[];
+  indiceInicial: number;
 }
 
 @Component({
@@ -36,9 +38,37 @@ export class VisualizadorDialogComponent {
   readonly dialogRef = inject(MatDialogRef<VisualizadorDialogComponent>);
   readonly data = inject<VisualizadorDialogData>(MAT_DIALOG_DATA);
 
-  readonly registro = this.data.registro;
-  readonly url = computed(() => this.store.urlArquivo(this.registro));
-  readonly origemLabel = ORIGEM_DATA_CAPTURA_LABELS[
-    this.registro.origemDataCaptura
-  ];
+  private readonly indiceAtual = signal(this.data.indiceInicial);
+
+  readonly registro = computed(() => this.data.registros[this.indiceAtual()]);
+  readonly url = computed(() => this.store.urlArquivo(this.registro()));
+  readonly origemLabel = computed(
+    () => ORIGEM_DATA_CAPTURA_LABELS[this.registro().origemDataCaptura],
+  );
+
+  readonly temMultiplos = this.data.registros.length > 1;
+  readonly temAnterior = computed(() => this.indiceAtual() > 0);
+  readonly temProximo = computed(
+    () => this.indiceAtual() < this.data.registros.length - 1,
+  );
+  readonly posicaoLabel = computed(
+    () => `${this.indiceAtual() + 1} de ${this.data.registros.length}`,
+  );
+
+  // Navegação não é cíclica de propósito: nas bordas do álbum a seta
+  // correspondente só fica desabilitada, em vez de voltar ao início/fim do
+  // dia silenciosamente — é mais previsível para o usuário.
+  @HostListener('document:keydown.arrowright')
+  proximo(): void {
+    if (this.temProximo()) {
+      this.indiceAtual.update((indice) => indice + 1);
+    }
+  }
+
+  @HostListener('document:keydown.arrowleft')
+  anterior(): void {
+    if (this.temAnterior()) {
+      this.indiceAtual.update((indice) => indice - 1);
+    }
+  }
 }

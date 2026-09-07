@@ -60,6 +60,47 @@
   }
 }
 
+.posicao-chip {
+  position: absolute;
+  top: 12px;
+  right: 56px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.62);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+// Setas de navegação sobre a mídia, para quem não vai usar o teclado.
+// Ficam desabilitadas (sem ciclar) nas bordas do álbum do dia.
+.navegar {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #fff;
+  background: rgba(15, 23, 42, 0.5);
+  backdrop-filter: blur(2px);
+
+  &:hover:not(:disabled) {
+    background: rgba(15, 23, 42, 0.75);
+  }
+
+  &:disabled {
+    opacity: 0.25;
+    cursor: default;
+  }
+
+  &.anterior {
+    left: 8px;
+  }
+
+  &.proximo {
+    right: 8px;
+  }
+}
+
 .detalhes {
   padding: 16px 20px 20px;
   overflow-y: auto;
