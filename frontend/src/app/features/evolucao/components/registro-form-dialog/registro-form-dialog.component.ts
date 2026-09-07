@@ -35,12 +35,19 @@ export interface ResultadoLoteEnvio {
   falhas: string[];
 }
 
-/** Um arquivo selecionado no lote, com sua própria data de captura detectada. */
+/**
+ * Um arquivo selecionado no lote. A data de captura NÃO é mais individual
+ * por arquivo — é um campo único do formulário (`form.controls.dataCaptura`)
+ * aplicado a todos os itens no envio, com sugestão automática a partir do
+ * primeiro arquivo escolhido (ver `selecionarArquivos`). Motivo: em fotos
+ * sem EXIF (ex.: exportadas pelo WhatsApp) e sem uma `lastModified`
+ * confiável, a detecção automática cai no fallback "hoje" para o lote
+ * inteiro — pior do que deixar o usuário informar a data uma vez e aplicar
+ * a todos, que é o que ele efetivamente precisa fazer nesse caso.
+ */
 interface ItemArquivoLote {
   arquivo: File;
   previewUrl: string;
-  dataCaptura: string;
-  origemDataCaptura: OrigemDataCaptura;
 }
 
 export const MIMES_ACEITOS =
@@ -123,9 +130,7 @@ export class RegistroFormDialogComponent implements OnDestroy {
       this.data.registro
         ? new Date(`${this.data.registro.dataCaptura.slice(0, 10)}T00:00:00`)
         : new Date(),
-      // No modo criação a data é individual por arquivo (detectada via EXIF),
-      // não vem deste campo — só é obrigatório quando editando.
-      this.editando ? [Validators.required] : [],
+      [Validators.required],
     ],
   });
 
@@ -171,11 +176,15 @@ export class RegistroFormDialogComponent implements OnDestroy {
   }
 
   /**
-   * Seleção múltipla: cada arquivo ganha sua própria data de captura
-   * detectada (EXIF -> data do arquivo -> hoje), já que fotos de um mesmo
-   * lote podem ter sido tiradas em dias diferentes. Arquivos já escolhidos
-   * antes são preservados; a mesma seleção pode ser repetida em várias
-   * passagens do input.
+   * Seleção múltipla: a data de captura é UM campo só (`form.controls.dataCaptura`),
+   * aplicado a todos os arquivos do lote no envio — não mais individual por
+   * arquivo (ver comentário em `ItemArquivoLote`). Ao escolher os primeiros
+   * arquivos (lote ainda vazio), sugerimos essa data a partir do primeiro
+   * arquivo aceito (EXIF -> data do arquivo -> hoje), mas o campo continua
+   * livre para o usuário corrigir antes de enviar; adicionar mais arquivos a
+   * um lote já iniciado não mexe na data já escolhida. Arquivos já
+   * selecionados antes são preservados; a mesma seleção pode ser repetida em
+   * várias passagens do input.
    */
   async selecionarArquivos(evento: Event): Promise<void> {
     const input = evento.target as HTMLInputElement;
@@ -183,6 +192,7 @@ export class RegistroFormDialogComponent implements OnDestroy {
     if (!arquivosSelecionados || arquivosSelecionados.length === 0) return;
 
     this.erro.set(null);
+    const eraVazio = this.itens().length === 0;
     const aceitos = this.mimesAceitos.split(',');
     const novosItens: ItemArquivoLote[] = [];
     const rejeitados: string[] = [];
@@ -192,18 +202,21 @@ export class RegistroFormDialogComponent implements OnDestroy {
         rejeitados.push(arquivo.name);
         continue;
       }
-      const detectada = await detectarDataCaptura(arquivo);
-      novosItens.push({
-        arquivo,
-        previewUrl: URL.createObjectURL(arquivo),
-        dataCaptura: detectada.data,
-        origemDataCaptura: detectada.origem,
-      });
+      novosItens.push({ arquivo, previewUrl: URL.createObjectURL(arquivo) });
     }
 
     if (rejeitados.length > 0) {
       this.erro.set(
         `Formato não suportado, ignorado: ${rejeitados.join(', ')}.`,
+      );
+    }
+
+    if (eraVazio && novosItens.length > 0) {
+      const detectada = await detectarDataCaptura(novosItens[0].arquivo);
+      this.dataDetectada = detectada.data;
+      this.origemDetectada.set(detectada.origem);
+      this.form.controls.dataCaptura.setValue(
+        new Date(`${detectada.data}T00:00:00`),
       );
     }
 
@@ -271,19 +284,23 @@ export class RegistroFormDialogComponent implements OnDestroy {
   }
 
   /**
-   * Envio sequencial (concatMap): um arquivo de cada vez, título/descrição
-   * compartilhados e data/origem individuais por item. Uma falha num arquivo
-   * não interrompe os demais — `store.enviar()` já grava cada sucesso na
-   * store assim que termina, então o que já subiu fica salvo mesmo se algo
-   * no meio do lote falhar. Ao final o diálogo sempre fecha (os arquivos já
-   * enviados já estão persistidos de qualquer forma) reportando para quem
-   * chamou quantos deram certo e quais falharam, para a mensagem de sucesso
-   * nunca fingir ser total quando não foi.
+   * Envio sequencial (concatMap): um arquivo de cada vez, título/descrição/
+   * data/origem compartilhados pelo lote inteiro (mesmo campo do
+   * formulário, `origemAtual()` inclusive — se o usuário mexeu na data
+   * sugerida, todos os itens sobem com origem MANUAL). Uma falha num
+   * arquivo não interrompe os demais — `store.enviar()` já grava cada
+   * sucesso na store assim que termina, então o que já subiu fica salvo
+   * mesmo se algo no meio do lote falhar. Ao final o diálogo sempre fecha
+   * (os arquivos já enviados já estão persistidos de qualquer forma)
+   * reportando para quem chamou quantos deram certo e quais falharam, para
+   * a mensagem de sucesso nunca fingir ser total quando não foi.
    */
   private salvarLote(): void {
     const valores = this.form.getRawValue();
     const titulo = valores.titulo.trim() || null;
     const descricao = valores.descricao.trim() || null;
+    const dataCaptura = paraIsoLocal(valores.dataCaptura);
+    const origemDataCaptura = this.origemAtual();
     const itens = this.itens();
 
     this.salvando.set(true);
@@ -299,8 +316,8 @@ export class RegistroFormDialogComponent implements OnDestroy {
               arquivo: item.arquivo,
               titulo,
               descricao,
-              dataCaptura: item.dataCaptura,
-              origemDataCaptura: item.origemDataCaptura,
+              dataCaptura,
+              origemDataCaptura,
             })
             .pipe(
               map((registro) => ({ ok: true as const, registro })),

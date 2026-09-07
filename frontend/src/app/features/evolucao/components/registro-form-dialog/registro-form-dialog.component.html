@@ -92,32 +92,27 @@
       ></textarea>
     </mat-form-field>
 
-    @if (editando) {
-      <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
-        <mat-label>Data de captura</mat-label>
-        <input matInput [matDatepicker]="picker" formControlName="dataCaptura" />
-        <mat-datepicker-toggle matIconSuffix [for]="picker" />
-        <mat-datepicker #picker />
-        <mat-hint>Quando a foto/vídeo foi tirada, não quando foi enviada</mat-hint>
-        @if (form.controls.dataCaptura.hasError('required')) {
-          <mat-error>Informe a data de captura.</mat-error>
-        }
-      </mat-form-field>
+    <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
+      <mat-label>Data de captura</mat-label>
+      <input matInput [matDatepicker]="picker" formControlName="dataCaptura" />
+      <mat-datepicker-toggle matIconSuffix [for]="picker" />
+      <mat-datepicker #picker />
+      <mat-hint>{{
+        !editando && itens().length > 1
+          ? "Quando as fotos/vídeos foram tirados — aplicada a todos os " +
+            itens().length +
+            " arquivos selecionados, não quando foram enviados"
+          : "Quando a foto/vídeo foi tirada, não quando foi enviada"
+      }}</mat-hint>
+      @if (form.controls.dataCaptura.hasError('required')) {
+        <mat-error>Informe a data de captura.</mat-error>
+      }
+    </mat-form-field>
 
-      <p class="origem-chip">
-        <mat-icon>{{ origemIcone() }}</mat-icon>
-        <span>{{ origemLabel() }}</span>
-      </p>
-    } @else if (itens().length > 0) {
-      <p class="info-lote">
-        <mat-icon>auto_awesome</mat-icon>
-        <span
-          >A data de captura de cada arquivo é detectada automaticamente
-          (EXIF ou data do arquivo) — para corrigir uma em específico, edite o
-          registro depois de enviado.</span
-        >
-      </p>
-    }
+    <p class="origem-chip">
+      <mat-icon>{{ origemIcone() }}</mat-icon>
+      <span>{{ origemLabel() }}</span>
+    </p>
 
     @if (store.enviando()) {
       <div class="progresso">
