@@ -39,6 +39,36 @@ O Postgres **não** é duplicado por worktree — todos os worktrees falam com o
 mesmo container `reforma-postgres`, ou seja, com os mesmos dados reais. O
 Artigo 4 vale igual dentro de worktree.
 
+**`backend/uploads/` também não é duplicado — e esse é gitignored, então um
+worktree novo nasce com ele vazio.** O banco (compartilhado) tem linhas de
+`registros_obra` apontando para arquivos que só existem no checkout original;
+testar a feature de evolução da obra num worktree sem copiar essa pasta
+produz vídeo com 500 e foto bloqueada pelo navegador (ORB) — não é bug da
+feature, é ambiente incompleto. Corrija com
+`cp -r <repo-original>/backend/uploads .` antes de validar visualmente.
+
+**`npm --prefix <app> install` (mas não `npm --prefix <app> run <script>`)
+polui `package.json` do app com uma dependência `"file:.."` espúria**, porque
+o diretório atual (a raiz do worktree) também tem `package.json`. Use sempre
+`cd <app> && npm install`, nunca `--prefix` com o subcomando `install` — é
+exatamente o que `npm run setup` já faz. Se aparecer
+`"projeto-reforma": "file:.."` em `backend/package.json` ou
+`frontend/package.json`, é esse bug: `git checkout -- <arquivo> <arquivo>.lock`
+e apagar o symlink correspondente em `node_modules/` resolve.
+
+**`preview_start` com `name` (via `.claude/launch.json`) não é worktree-aware
+— ele acaba servindo o checkout ORIGINAL, mesmo com `.claude/launch.json`
+editado no worktree e mesmo usando caminho absoluto em `runtimeArgs`.**
+Confirmado por teste direto: o processo `ng serve`/`nest start` sobe apontando
+para `node_modules` do checkout principal, não do worktree. Para validar
+visualmente uma feature dentro de um worktree, suba os servidores você mesmo
+(`cd backend && npm run start:dev &` / `cd frontend && npm start &`, ambos a
+partir do diretório do worktree) e conecte o Browser pane pela URL:
+`preview_start({ url: "http://localhost:4200/..." })`, nunca por `name`.
+Ao terminar, `preview_stop` em qualquer serverId órfão que `preview_list`
+mostrar (pode sobrar um registrado mesmo depois de matar o processo pelo PID)
+além de parar os processos via `npm run stop`/`stop.mjs`.
+
 ---
 
 ## Artigo 2 — Agentes rodam em paralelo, não em fila
