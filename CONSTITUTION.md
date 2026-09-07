@@ -157,14 +157,33 @@ comprovando com um `SELECT count(*)` que voltou a zero.
 
 ---
 
-## Artigo 5 — Commit e push são pré-autorizados
+## Artigo 5 — Commit, push e merge são pré-autorizados
 
-Neste projeto o agente **pode commitar e dar push** em
-`https://github.com/manell98/projeto-reforma.git` sem perguntar a cada vez.
+Neste projeto o agente **pode commitar, dar push e mesclar PR** em
+`https://github.com/manell98/projeto-reforma.git` sem perguntar a cada vez —
+autorização permanente, dada explicitamente pelo usuário em 2026-09-07.
 
-- Trabalhe na branch do worktree e **abra PR** ou mescle na `main` conforme o
-  usuário pedir; não faça push direto na `main` sem que ela seja a branch de
-  trabalho combinada.
+- Trabalhe na branch do worktree, abra PR (`gh pr create`) e **mescle-o
+  (`gh pr merge --merge --delete-branch`) assim que**: `npm run build` passar
+  limpo no backend e no frontend (Artigo 6), nenhum check do PR estiver
+  falhando (`gh pr view --json mergeable,statusCheckRollup`), e nenhuma regra
+  desta constitution — especialmente o Artigo 4 — tiver sido violada. Não
+  espere aprovação do usuário para mesclar: essas condições SÃO a aprovação.
+  **Atenção**: este repositório não tem CI configurado — "sem check
+  falhando" hoje só significa "não há checks", não que testes automatizados
+  rodaram. O build local + a verificação manual do Artigo 6 são a única rede
+  de segurança; não finja mais confiança nisso do que existe de fato.
+- Não faça push direto na `main` — sempre branch de worktree + PR, mesmo
+  mesclando na sequência sem perguntar.
+- Depois de mesclar: **sincronize a `main` local com a remota** —
+  `git checkout main && git pull origin main` no checkout principal (não no
+  worktree) — antes de considerar a tarefa concluída. A branch remota já é
+  apagada pelo `--delete-branch`; ainda é preciso `git worktree remove` +
+  `git branch -d` para a cópia local do worktree, e conferir com
+  `git worktree prune` (ver Artigo 1).
+- Se o merge falhar (conflito, `mergeable: false`, ou um check realmente
+  configurado quebrar), **pare e avise o usuário** com o motivo — isso não é
+  coberto pela pré-autorização.
 - Commits em português, no imperativo, seguindo o histórico existente
   (ex.: "Adiciona evolução da obra com fotos e vídeos").
 - Commits pequenos e coerentes, um assunto por commit.
@@ -172,8 +191,8 @@ Neste projeto o agente **pode commitar e dar push** em
 - Nunca use `--no-verify`, `--force` em branch compartilhada, ou
   `git reset --hard` sobre trabalho não commitado do usuário.
 
-Isso autoriza escrever no repositório — **não** relaxa nenhuma outra regra,
-especialmente o Artigo 4.
+Isso autoriza escrever no repositório e mesclar — **não** relaxa nenhuma
+outra regra, especialmente o Artigo 4.
 
 ---
 
