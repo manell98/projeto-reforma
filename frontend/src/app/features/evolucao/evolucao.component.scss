@@ -42,11 +42,10 @@ button {
 .timeline {
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  gap: 22px;
 }
 
-// Trilho vertical ligando os marcadores de cada dia: é o que transforma uma
-// pilha de grades soltas numa linha do tempo legível de cima para baixo.
+// Trilho vertical ligando os marcadores de cada dia — a linha do tempo.
 .dia {
   position: relative;
   padding-left: 30px;
@@ -56,7 +55,7 @@ button {
     position: absolute;
     left: 8px;
     top: 24px;
-    bottom: -28px;
+    bottom: -22px;
     width: 2px;
     background: var(--color-border);
   }
@@ -66,17 +65,10 @@ button {
   }
 }
 
-.dia-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 14px;
-}
-
 .dia-marcador {
   position: absolute;
   left: 0;
-  top: 6px;
+  top: 22px;
   width: 18px;
   height: 18px;
   border-radius: 50%;
@@ -85,12 +77,69 @@ button {
   box-shadow: 0 0 0 4px var(--color-info-bg);
 }
 
+// O painel é o "álbum": cartão com o cabeçalho clicável e, dentro dele, a
+// capa recolhida ou a grade expandida.
+.dia-painel {
+  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xs);
+  overflow: hidden;
+  transition: box-shadow 0.2s ease;
+}
+
+.dia.expandido .dia-painel {
+  box-shadow: var(--shadow-md);
+}
+
+.dia-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 18px;
+  cursor: pointer;
+  user-select: none;
+
+  &:hover {
+    background: var(--color-hover);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-info);
+    outline-offset: -2px;
+  }
+}
+
+.dia-toggle-icone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--color-info-bg);
+  color: var(--color-info);
+  transition: transform 0.22s ease;
+
+  mat-icon {
+    font-size: 19px;
+    width: 19px;
+    height: 19px;
+  }
+}
+
+.dia.expandido .dia-toggle-icone {
+  transform: rotate(90deg);
+}
+
 .dia-titulo {
   display: flex;
   align-items: baseline;
   flex-wrap: wrap;
   gap: 4px 10px;
   min-width: 0;
+  flex: 1;
 
   h2 {
     margin: 0;
@@ -111,6 +160,7 @@ button {
 }
 
 .dia-contagem {
+  flex-shrink: 0;
   padding: 4px 10px;
   border-radius: 999px;
   background: var(--color-info-bg);
@@ -120,10 +170,111 @@ button {
   white-space: nowrap;
 }
 
+// Conteúdo expandido: a grade original de app-registro-card.
 .grade {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 16px;
+  padding: 4px 18px 18px;
+  animation: entrar 0.2s ease both;
+}
+
+@keyframes entrar {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+// Capa do álbum recolhido: leque de miniaturas + legenda.
+.capa {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 4px 18px 18px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  animation: entrar 0.2s ease both;
+}
+
+.capa-pilha {
+  display: flex;
+  flex-shrink: 0;
+  padding-left: 14px;
+}
+
+.capa-thumb {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  margin-left: -14px;
+  border-radius: var(--radius-md);
+  border: 2.5px solid #fff;
+  box-shadow: var(--shadow-sm);
+  background: #0f172a;
+  overflow: hidden;
+  transition: transform 0.18s ease;
+
+  img,
+  video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  &:nth-child(odd) {
+    transform: rotate(-5deg);
+  }
+  &:nth-child(even) {
+    transform: rotate(4deg);
+  }
+}
+
+.capa:hover .capa-thumb {
+  transform: rotate(0deg) translateY(-3px);
+}
+
+.capa-thumb-video {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 20px;
+  height: 20px;
+  font-size: 20px;
+  color: #fff;
+}
+
+.capa-extra {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(15, 23, 42, 0.72);
+  color: #fff;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.capa-legenda {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--color-text-muted);
+  font-size: 0.82rem;
+  font-weight: 600;
+
+  mat-icon {
+    font-size: 17px;
+    width: 17px;
+    height: 17px;
+  }
 }
 
 @media (max-width: 599px) {
@@ -142,8 +293,7 @@ button {
     box-shadow: 0 0 0 3px var(--color-info-bg);
   }
 
-  // Os quatro contadores são contexto, não o conteúdo da página: em duas
-  // colunas eles deixam de empurrar a galeria para fora da primeira tela.
+  // Os quatro contadores viram duas colunas para caber na primeira tela.
   .cards-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 12px;
@@ -153,7 +303,28 @@ button {
     padding: 12px;
   }
 
-  .grade {
+  .dia-header {
+    padding: 12px 14px;
+    gap: 8px;
+  }
+
+  .dia-contagem {
+    display: none;
+  }
+
+  .grade,
+  .capa {
     gap: 12px;
+    padding: 4px 14px 14px;
+  }
+
+  .capa-thumb {
+    width: 48px;
+    height: 48px;
+    margin-left: -12px;
+  }
+
+  .capa-legenda span {
+    display: none;
   }
 }

@@ -99,29 +99,102 @@
 } @else {
   <div class="timeline">
     @for (dia of store.porDia(); track dia.data) {
-      <section class="dia">
-        <header class="dia-header">
-          <span class="dia-marcador"></span>
-          <div class="dia-titulo">
-            <h2>{{ dia.data | date: "dd 'de' MMMM 'de' y" : 'UTC' : 'pt-BR' }}</h2>
-            <span class="dia-semana">{{
-              dia.data | date: 'EEEE' : 'UTC' : 'pt-BR'
-            }}</span>
-          </div>
-          <span class="dia-contagem">
-            {{ dia.registros.length }}
-            {{ dia.registros.length === 1 ? 'registro' : 'registros' }}
-          </span>
-        </header>
+      <section class="dia" [class.expandido]="estaExpandido(dia.data)">
+        <span class="dia-marcador"></span>
 
-        <div class="grade">
-          @for (registro of dia.registros; track registro.id) {
-            <app-registro-card
-              [registro]="registro"
-              (abrir)="abrir($event)"
-              (editar)="editar($event)"
-              (excluir)="excluir($event)"
-            />
+        <div class="dia-painel">
+          <!-- Cabeçalho é o gatilho oficial do acordeão: cobre teclado (Enter/
+               Espaço) além de clique, já que é o único controle com foco. -->
+          <header
+            class="dia-header"
+            role="button"
+            tabindex="0"
+            [attr.aria-expanded]="estaExpandido(dia.data)"
+            [attr.aria-controls]="'album-' + dia.data"
+            [attr.aria-label]="
+              (estaExpandido(dia.data) ? 'Recolher' : 'Expandir') +
+              ' álbum do dia com ' + dia.registros.length +
+              (dia.registros.length === 1 ? ' registro' : ' registros')
+            "
+            (click)="alternarDia(dia.data)"
+            (keydown.enter)="alternarDia(dia.data)"
+            (keydown.space)="$event.preventDefault(); alternarDia(dia.data)"
+          >
+            <span class="dia-toggle-icone">
+              <mat-icon>chevron_right</mat-icon>
+            </span>
+
+            <div class="dia-titulo">
+              <h2>{{ dia.data | date: "dd 'de' MMMM 'de' y" : 'UTC' : 'pt-BR' }}</h2>
+              <span class="dia-semana">{{
+                dia.data | date: 'EEEE' : 'UTC' : 'pt-BR'
+              }}</span>
+            </div>
+
+            <span class="dia-contagem">
+              {{ dia.registros.length }}
+              {{ dia.registros.length === 1 ? 'registro' : 'registros' }}
+            </span>
+          </header>
+
+          @if (estaExpandido(dia.data)) {
+            <div class="grade" [id]="'album-' + dia.data">
+              @for (registro of dia.registros; track registro.id) {
+                <app-registro-card
+                  [registro]="registro"
+                  (abrir)="abrir($event, dia.registros)"
+                  (editar)="editar($event)"
+                  (excluir)="excluir($event)"
+                />
+              }
+            </div>
+          } @else {
+            <!-- Capa é um atalho visual/de toque para o mesmo alternarDia() do
+                 cabeçalho; fica fora da ordem de tabulação (aria-hidden +
+                 tabindex="-1") para não duplicar o controle acessível. -->
+            <button
+              type="button"
+              class="capa"
+              [id]="'album-' + dia.data"
+              tabindex="-1"
+              aria-hidden="true"
+              (click)="alternarDia(dia.data)"
+            >
+              <span class="capa-pilha">
+                @for (
+                  registro of dia.registros.slice(0, 4);
+                  track registro.id;
+                  let i = $index
+                ) {
+                  <span class="capa-thumb" [style.z-index]="4 - i">
+                    @if (registro.tipo === 'VIDEO') {
+                      <video
+                        [src]="store.urlArquivo(registro)"
+                        preload="metadata"
+                        muted
+                        playsinline
+                      ></video>
+                      <mat-icon class="capa-thumb-video">play_arrow</mat-icon>
+                    } @else {
+                      <img
+                        [src]="store.urlArquivo(registro)"
+                        [alt]="registro.titulo ?? registro.arquivoNome"
+                      />
+                    }
+                  </span>
+                }
+                @if (dia.registros.length > 4) {
+                  <span class="capa-thumb capa-extra">
+                    +{{ dia.registros.length - 4 }}
+                  </span>
+                }
+              </span>
+
+              <span class="capa-legenda">
+                <mat-icon>unfold_more</mat-icon>
+                <span>Toque para ver o álbum</span>
+              </span>
+            </button>
           }
         </div>
       </section>
