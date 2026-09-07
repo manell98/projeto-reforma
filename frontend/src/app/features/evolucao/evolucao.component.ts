@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
@@ -13,6 +13,7 @@ import { RegistroCardComponent } from './components/registro-card/registro-card.
 import {
   RegistroFormDialogComponent,
   RegistroFormDialogData,
+  ResultadoLoteEnvio,
 } from './components/registro-form-dialog/registro-form-dialog.component';
 import {
   VisualizadorDialogComponent,
@@ -44,19 +45,44 @@ export class EvolucaoComponent implements OnInit {
     this.store.carregar();
   }
 
+  // --- Álbuns por dia -----------------------------------------------------
+  // Cada dia da timeline começa recolhido (visual de álbum); clicar no
+  // cabeçalho expande/recolhe. Estado puramente de UI, não vem da store.
+  private readonly _diasExpandidos = signal<ReadonlySet<string>>(new Set());
+
+  estaExpandido(data: string): boolean {
+    return this._diasExpandidos().has(data);
+  }
+
+  alternarDia(data: string): void {
+    this._diasExpandidos.update((atual) => {
+      const proximo = new Set(atual);
+      if (proximo.has(data)) {
+        proximo.delete(data);
+      } else {
+        proximo.add(data);
+      }
+      return proximo;
+    });
+  }
+
   novoRegistro(): void {
-    this.abrirFormulario(null, 'Registro adicionado à evolução da obra.');
+    this.abrirFormulario(null);
   }
 
   editar(registro: RegistroObra): void {
-    this.abrirFormulario(registro, 'Registro atualizado com sucesso.');
+    this.abrirFormulario(registro);
   }
 
-  abrir(registro: RegistroObra): void {
+  // `registros` é a lista do mesmo álbum/dia do item clicado (na ordem
+  // exibida em tela) — permite ao visualizador navegar entre eles com as
+  // setas do teclado, sem precisar recarregar nada.
+  abrir(registro: RegistroObra, registros: RegistroObra[]): void {
+    const indiceInicial = registros.findIndex((item) => item.id === registro.id);
     this.dialog.open<VisualizadorDialogComponent, VisualizadorDialogData>(
       VisualizadorDialogComponent,
       {
-        data: { registro },
+        data: { registros, indiceInicial: Math.max(0, indiceInicial) },
         panelClass: 'visualizador-panel',
         backdropClass: 'visualizador-backdrop',
         maxWidth: '92vw',
@@ -92,24 +118,43 @@ export class EvolucaoComponent implements OnInit {
     });
   }
 
-  private abrirFormulario(
-    registro: RegistroObra | null,
-    mensagemSucesso: string,
-  ): void {
+  private abrirFormulario(registro: RegistroObra | null): void {
     const ref = this.dialog.open<
       RegistroFormDialogComponent,
       RegistroFormDialogData,
-      RegistroObra
+      RegistroObra | ResultadoLoteEnvio
     >(RegistroFormDialogComponent, { data: { registro } });
 
     ref.afterClosed().subscribe((salvo) => {
       if (!salvo) return;
-      // A criação já entra na lista dentro da store (durante o upload); a
-      // edição atualiza o item existente aqui.
+
       if (registro) {
-        this.store.atualizarLocal(salvo);
+        // Edição: sempre um único registro, os arquivos não mudam.
+        this.store.atualizarLocal(salvo as RegistroObra);
+        this.snackBar.open('Registro atualizado com sucesso.', 'Fechar', {
+          duration: 3000,
+        });
+        return;
       }
-      this.snackBar.open(mensagemSucesso, 'Fechar', { duration: 3000 });
+
+      // Criação: pode ter sido um ou vários arquivos, e o lote pode ter
+      // falhado parcialmente — cada sucesso já entrou na store durante o
+      // próprio upload, então só resta relatar o resultado ao usuário.
+      const { enviados, falhas } = salvo as ResultadoLoteEnvio;
+      if (enviados.length > 0) {
+        const mensagem =
+          enviados.length === 1
+            ? 'Registro adicionado à evolução da obra.'
+            : `${enviados.length} registros adicionados à evolução da obra.`;
+        this.snackBar.open(mensagem, 'Fechar', { duration: 3000 });
+      }
+      if (falhas.length > 0) {
+        this.snackBar.open(
+          `Falha ao enviar: ${falhas.join(', ')}.`,
+          'Fechar',
+          { duration: 6000 },
+        );
+      }
     });
   }
 }

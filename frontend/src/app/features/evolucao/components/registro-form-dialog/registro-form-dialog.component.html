@@ -9,41 +9,67 @@
         #inputArquivo
         type="file"
         class="input-arquivo"
+        multiple
         [accept]="mimesAceitos"
-        (change)="selecionarArquivo($event)"
+        (change)="selecionarArquivos($event)"
       />
       <button
         type="button"
         class="dropzone"
-        [class.compacta]="arquivo()"
+        [class.compacta]="itens().length > 0"
         [disabled]="salvando()"
         (click)="inputArquivo.click()"
       >
-        <mat-icon>{{ arquivo() ? 'cached' : 'add_photo_alternate' }}</mat-icon>
+        <mat-icon>add_photo_alternate</mat-icon>
         <span class="dropzone-titulo">{{
-          arquivo() ? 'Trocar arquivo' : 'Escolher foto ou vídeo'
+          itens().length > 0 ? 'Adicionar mais arquivos' : 'Escolher fotos ou vídeos'
         }}</span>
-        @if (!arquivo()) {
-          <span class="dropzone-hint">JPG, PNG, WEBP, HEIC, MP4, MOV ou WEBM</span>
+        @if (itens().length === 0) {
+          <span class="dropzone-hint"
+            >JPG, PNG, WEBP, HEIC, MP4, MOV ou WEBM — pode selecionar vários de
+            uma vez</span
+          >
         }
       </button>
-    }
 
-    @if (previewUrl(); as url) {
-      <div class="preview">
-        @if (ehVideo()) {
-          <video [src]="url" controls preload="metadata"></video>
-        } @else {
-          <img [src]="url" [alt]="arquivo()?.name ?? 'Registro da obra'" />
-        }
-      </div>
-    }
+      @if (itens().length > 0) {
+        <p class="resumo-selecao">{{ resumoSelecao() }}</p>
 
-    @if (arquivo(); as selecionado) {
-      <p class="arquivo-info">
-        <mat-icon>{{ ehVideo() ? 'movie' : 'image' }}</mat-icon>
-        <span>{{ selecionado.name }}</span>
-      </p>
+        <div class="grade-arquivos">
+          @for (item of itens(); track item.previewUrl; let i = $index) {
+            <div class="item-arquivo">
+              @if (item.arquivo.type.startsWith('video/')) {
+                <video [src]="item.previewUrl" preload="metadata"></video>
+                <span class="selo-tipo video">
+                  <mat-icon>movie</mat-icon>
+                </span>
+              } @else {
+                <img [src]="item.previewUrl" [alt]="item.arquivo.name" />
+              }
+              <button
+                type="button"
+                class="remover-item"
+                aria-label="Remover arquivo"
+                matTooltip="Remover"
+                [disabled]="salvando()"
+                (click)="removerItem(i)"
+              >
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+          }
+        </div>
+      }
+    } @else {
+      @if (previewUrl(); as url) {
+        <div class="preview">
+          @if (ehVideo) {
+            <video [src]="url" controls preload="metadata"></video>
+          } @else {
+            <img [src]="url" [alt]="data.registro?.arquivoNome ?? 'Registro da obra'" />
+          }
+        </div>
+      }
     }
 
     <mat-form-field appearance="outline" class="full-width">
@@ -66,26 +92,37 @@
       ></textarea>
     </mat-form-field>
 
-    <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
-      <mat-label>Data de captura</mat-label>
-      <input matInput [matDatepicker]="picker" formControlName="dataCaptura" />
-      <mat-datepicker-toggle matIconSuffix [for]="picker" />
-      <mat-datepicker #picker />
-      <mat-hint>Quando a foto/vídeo foi tirada, não quando foi enviada</mat-hint>
-      @if (form.controls.dataCaptura.hasError('required')) {
-        <mat-error>Informe a data de captura.</mat-error>
-      }
-    </mat-form-field>
+    @if (editando) {
+      <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
+        <mat-label>Data de captura</mat-label>
+        <input matInput [matDatepicker]="picker" formControlName="dataCaptura" />
+        <mat-datepicker-toggle matIconSuffix [for]="picker" />
+        <mat-datepicker #picker />
+        <mat-hint>Quando a foto/vídeo foi tirada, não quando foi enviada</mat-hint>
+        @if (form.controls.dataCaptura.hasError('required')) {
+          <mat-error>Informe a data de captura.</mat-error>
+        }
+      </mat-form-field>
 
-    <p class="origem-chip">
-      <mat-icon>{{ origemIcone() }}</mat-icon>
-      <span>{{ origemLabel() }}</span>
-    </p>
+      <p class="origem-chip">
+        <mat-icon>{{ origemIcone() }}</mat-icon>
+        <span>{{ origemLabel() }}</span>
+      </p>
+    } @else if (itens().length > 0) {
+      <p class="info-lote">
+        <mat-icon>auto_awesome</mat-icon>
+        <span
+          >A data de captura de cada arquivo é detectada automaticamente
+          (EXIF ou data do arquivo) — para corrigir uma em específico, edite o
+          registro depois de enviado.</span
+        >
+      </p>
+    }
 
     @if (store.enviando()) {
       <div class="progresso">
         <div class="progresso-topo">
-          <span>Enviando arquivo...</span>
+          <span>{{ rotuloBotaoSalvar() }}</span>
           <strong>{{ store.progressoEnvio() }}%</strong>
         </div>
         <mat-progress-bar mode="determinate" [value]="store.progressoEnvio()" />

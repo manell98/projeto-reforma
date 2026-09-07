@@ -89,21 +89,88 @@
   }
 }
 
-.arquivo-info {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin: 6px 0 4px;
+.resumo-selecao {
+  margin: 2px 0 4px;
   font-size: 0.8rem;
+  font-weight: 700;
   color: var(--color-text-secondary);
-  word-break: break-all;
+}
+
+// Grade de miniaturas do lote selecionado. Cada célula é quadrada para o
+// grid não "pular" de altura conforme a proporção de cada foto/vídeo.
+.grade-arquivos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
+  gap: 8px;
+  margin: 0 0 6px;
+}
+
+.item-arquivo {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: #0b1220;
+
+  img,
+  video {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.selo-tipo {
+  position: absolute;
+  bottom: 4px;
+  left: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(15, 23, 42, 0.72);
+  color: #fff;
 
   mat-icon {
-    font-size: 18px;
-    width: 18px;
-    height: 18px;
-    flex-shrink: 0;
-    color: var(--color-text-muted);
+    font-size: 13px;
+    width: 13px;
+    height: 13px;
+  }
+}
+
+.remover-item {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: rgba(15, 23, 42, 0.72);
+  color: #fff;
+  cursor: pointer;
+
+  mat-icon {
+    font-size: 15px;
+    width: 15px;
+    height: 15px;
+  }
+
+  &:hover:not(:disabled) {
+    background: rgba(15, 23, 42, 0.9);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: default;
   }
 }
 
@@ -124,6 +191,30 @@
     font-size: 16px;
     width: 16px;
     height: 16px;
+  }
+}
+
+// Mesma paleta do .origem-chip, mas em formato de aviso (não pílula), já que
+// o texto do lote é uma frase explicativa, não um rótulo curto.
+.info-lote {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0 0 6px;
+  padding: 8px 10px;
+  border-radius: var(--radius-md);
+  background: var(--color-info-bg);
+  color: var(--color-info);
+  font-size: 0.78rem;
+  font-weight: 500;
+  line-height: 1.35;
+
+  mat-icon {
+    flex-shrink: 0;
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    margin-top: 1px;
   }
 }
 

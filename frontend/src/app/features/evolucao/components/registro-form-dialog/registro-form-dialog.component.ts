@@ -12,6 +12,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { catchError, concatMap, from, map, of, toArray } from 'rxjs';
 import { EvolucaoStoreService } from '../../../../core/state/evolucao-store.service';
 import {
   ORIGEM_DATA_CAPTURA_ICONES,
@@ -23,8 +25,22 @@ import { paraIsoLocal } from '../../../../shared/utils/duracao.util';
 import { detectarDataCaptura } from '../../../../shared/utils/exif.util';
 
 export interface RegistroFormDialogData {
-  /** null = novo registro (com upload); preenchido = edição dos metadados. */
+  /** null = novo(s) registro(s) (com upload); preenchido = edição dos metadados. */
   registro: RegistroObra | null;
+}
+
+/** Resultado de um envio em lote: o que subiu com sucesso e o que falhou. */
+export interface ResultadoLoteEnvio {
+  enviados: RegistroObra[];
+  falhas: string[];
+}
+
+/** Um arquivo selecionado no lote, com sua própria data de captura detectada. */
+interface ItemArquivoLote {
+  arquivo: File;
+  previewUrl: string;
+  dataCaptura: string;
+  origemDataCaptura: OrigemDataCaptura;
 }
 
 export const MIMES_ACEITOS =
@@ -43,6 +59,7 @@ export const MIMES_ACEITOS =
     MatIconModule,
     MatProgressBarModule,
     MatProgressSpinnerModule,
+    MatTooltipModule,
   ],
   templateUrl: './registro-form-dialog.component.html',
   styleUrl: './registro-form-dialog.component.scss',
@@ -51,25 +68,31 @@ export class RegistroFormDialogComponent implements OnDestroy {
   private readonly fb = inject(FormBuilder);
   readonly store = inject(EvolucaoStoreService);
   readonly dialogRef = inject(
-    MatDialogRef<RegistroFormDialogComponent, RegistroObra>,
+    MatDialogRef<RegistroFormDialogComponent, RegistroObra | ResultadoLoteEnvio>,
   );
   readonly data = inject<RegistroFormDialogData>(MAT_DIALOG_DATA);
 
   readonly mimesAceitos = MIMES_ACEITOS;
   readonly editando = Boolean(this.data.registro);
 
-  readonly arquivo = signal<File | null>(null);
-  /** URL local (blob:) para pré-visualizar o arquivo antes do upload. */
-  readonly previewLocal = signal<string | null>(null);
-  readonly ehVideo = signal(this.data.registro?.tipo === 'VIDEO');
+  /** Arquivos selecionados para envio (modo criação apenas — edição não troca arquivo). */
+  readonly itens = signal<ItemArquivoLote[]>([]);
+  readonly resumoSelecao = computed(() => {
+    const qtd = this.itens().length;
+    if (qtd === 0) return '';
+    return qtd === 1 ? '1 arquivo selecionado' : `${qtd} arquivos selecionados`;
+  });
+
+  /** No modo edição, `tipo` do registro existente não muda durante o diálogo. */
+  readonly ehVideo = this.data.registro?.tipo === 'VIDEO';
   readonly erro = signal<string | null>(null);
   readonly salvando = signal(false);
+  /** Índice (1-based) do arquivo em envio dentro do lote, para o rótulo de progresso. */
+  private readonly indiceLoteAtual = signal(0);
 
-  /** Preview do arquivo escolhido agora ou, na edição, da mídia já enviada. */
-  readonly previewUrl = computed(
-    () =>
-      this.previewLocal() ??
-      (this.data.registro ? this.store.urlArquivo(this.data.registro) : null),
+  /** Preview da mídia já enviada — usado apenas no modo edição. */
+  readonly previewUrl = computed(() =>
+    this.data.registro ? this.store.urlArquivo(this.data.registro) : null,
   );
 
   private readonly origemDetectada = signal<OrigemDataCaptura>(
@@ -82,9 +105,15 @@ export class RegistroFormDialogComponent implements OnDestroy {
   /** Rótulo do botão principal, que muda enquanto o envio está em andamento. */
   readonly rotuloBotaoSalvar = computed(() => {
     if (!this.salvando()) {
-      return this.editando ? 'Salvar alterações' : 'Enviar registro';
+      if (this.editando) return 'Salvar alterações';
+      const qtd = this.itens().length;
+      return qtd > 1 ? `Enviar ${qtd} registros` : 'Enviar registro';
     }
-    return this.editando ? 'Salvando...' : 'Enviando...';
+    if (this.editando) return 'Salvando...';
+    const total = this.itens().length;
+    return total > 1
+      ? `Enviando ${this.indiceLoteAtual()} de ${total}...`
+      : 'Enviando...';
   });
 
   readonly form = this.fb.nonNullable.group({
@@ -94,7 +123,9 @@ export class RegistroFormDialogComponent implements OnDestroy {
       this.data.registro
         ? new Date(`${this.data.registro.dataCaptura.slice(0, 10)}T00:00:00`)
         : new Date(),
-      [Validators.required],
+      // No modo criação a data é individual por arquivo (detectada via EXIF),
+      // não vem deste campo — só é obrigatório quando editando.
+      this.editando ? [Validators.required] : [],
     ],
   });
 
@@ -134,30 +165,64 @@ export class RegistroFormDialogComponent implements OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.liberarPreview();
+    for (const item of this.itens()) {
+      URL.revokeObjectURL(item.previewUrl);
+    }
   }
 
-  async selecionarArquivo(evento: Event): Promise<void> {
+  /**
+   * Seleção múltipla: cada arquivo ganha sua própria data de captura
+   * detectada (EXIF -> data do arquivo -> hoje), já que fotos de um mesmo
+   * lote podem ter sido tiradas em dias diferentes. Arquivos já escolhidos
+   * antes são preservados; a mesma seleção pode ser repetida em várias
+   * passagens do input.
+   */
+  async selecionarArquivos(evento: Event): Promise<void> {
     const input = evento.target as HTMLInputElement;
-    const arquivo = input.files?.[0];
-    if (!arquivo) return;
+    const arquivosSelecionados = input.files;
+    if (!arquivosSelecionados || arquivosSelecionados.length === 0) return;
 
-    this.liberarPreview();
     this.erro.set(null);
-    this.arquivo.set(arquivo);
-    this.ehVideo.set(arquivo.type.startsWith('video/'));
-    this.previewLocal.set(URL.createObjectURL(arquivo));
+    const aceitos = this.mimesAceitos.split(',');
+    const novosItens: ItemArquivoLote[] = [];
+    const rejeitados: string[] = [];
 
-    const detectada = await detectarDataCaptura(arquivo);
-    this.dataDetectada = detectada.data;
-    this.origemDetectada.set(detectada.origem);
-    this.form.controls.dataCaptura.setValue(
-      new Date(`${detectada.data}T00:00:00`),
-    );
-
-    if (!this.form.controls.titulo.value) {
-      this.form.controls.titulo.setValue(semExtensao(arquivo.name));
+    for (const arquivo of Array.from(arquivosSelecionados)) {
+      if (!aceitos.includes(arquivo.type)) {
+        rejeitados.push(arquivo.name);
+        continue;
+      }
+      const detectada = await detectarDataCaptura(arquivo);
+      novosItens.push({
+        arquivo,
+        previewUrl: URL.createObjectURL(arquivo),
+        dataCaptura: detectada.data,
+        origemDataCaptura: detectada.origem,
+      });
     }
+
+    if (rejeitados.length > 0) {
+      this.erro.set(
+        `Formato não suportado, ignorado: ${rejeitados.join(', ')}.`,
+      );
+    }
+
+    this.itens.update((atual) => [...atual, ...novosItens]);
+
+    const primeiro = this.itens()[0];
+    if (!this.form.controls.titulo.value && primeiro) {
+      this.form.controls.titulo.setValue(semExtensao(primeiro.arquivo.name));
+    }
+
+    // Permite selecionar novamente os mesmos arquivos após removê-los do lote.
+    input.value = '';
+  }
+
+  removerItem(indice: number): void {
+    const item = this.itens()[indice];
+    if (!item) return;
+    URL.revokeObjectURL(item.previewUrl);
+    this.itens.update((atual) => atual.filter((_, i) => i !== indice));
   }
 
   salvar(): void {
@@ -166,11 +231,26 @@ export class RegistroFormDialogComponent implements OnDestroy {
       return;
     }
 
-    if (!this.editando && !this.arquivo()) {
-      this.erro.set('Selecione uma foto ou um vídeo para enviar.');
+    const registroExistente = this.data.registro;
+
+    if (registroExistente) {
+      this.salvarEdicao(registroExistente);
       return;
     }
 
+    if (this.itens().length === 0) {
+      this.erro.set('Selecione ao menos uma foto ou vídeo para enviar.');
+      return;
+    }
+
+    this.salvarLote();
+  }
+
+  cancelar(): void {
+    this.dialogRef.close(undefined);
+  }
+
+  private salvarEdicao(registroExistente: RegistroObra): void {
     const valores = this.form.getRawValue();
     const dataCaptura = paraIsoLocal(valores.dataCaptura);
     const titulo = valores.titulo.trim() || null;
@@ -179,44 +259,69 @@ export class RegistroFormDialogComponent implements OnDestroy {
     this.salvando.set(true);
     this.erro.set(null);
 
-    const registroExistente = this.data.registro;
-    const requisicao = registroExistente
-      ? this.store.atualizar(registroExistente.id, {
-          titulo,
-          descricao,
-          dataCaptura,
-        })
-      : this.store.enviar({
-          arquivo: this.arquivo() as File,
-          titulo,
-          descricao,
-          dataCaptura,
-          origemDataCaptura: this.origemAtual(),
-        });
+    this.store
+      .atualizar(registroExistente.id, { titulo, descricao, dataCaptura })
+      .subscribe({
+        next: (registro) => this.dialogRef.close(registro),
+        error: () => {
+          this.salvando.set(false);
+          this.erro.set('Não foi possível salvar as alterações.');
+        },
+      });
+  }
 
-    requisicao.subscribe({
-      next: (registro) => this.dialogRef.close(registro),
-      error: () => {
+  /**
+   * Envio sequencial (concatMap): um arquivo de cada vez, título/descrição
+   * compartilhados e data/origem individuais por item. Uma falha num arquivo
+   * não interrompe os demais — `store.enviar()` já grava cada sucesso na
+   * store assim que termina, então o que já subiu fica salvo mesmo se algo
+   * no meio do lote falhar. Ao final o diálogo sempre fecha (os arquivos já
+   * enviados já estão persistidos de qualquer forma) reportando para quem
+   * chamou quantos deram certo e quais falharam, para a mensagem de sucesso
+   * nunca fingir ser total quando não foi.
+   */
+  private salvarLote(): void {
+    const valores = this.form.getRawValue();
+    const titulo = valores.titulo.trim() || null;
+    const descricao = valores.descricao.trim() || null;
+    const itens = this.itens();
+
+    this.salvando.set(true);
+    this.erro.set(null);
+    this.indiceLoteAtual.set(0);
+
+    from(itens)
+      .pipe(
+        concatMap((item, indice) => {
+          this.indiceLoteAtual.set(indice + 1);
+          return this.store
+            .enviar({
+              arquivo: item.arquivo,
+              titulo,
+              descricao,
+              dataCaptura: item.dataCaptura,
+              origemDataCaptura: item.origemDataCaptura,
+            })
+            .pipe(
+              map((registro) => ({ ok: true as const, registro })),
+              catchError(() =>
+                of({ ok: false as const, nome: item.arquivo.name }),
+              ),
+            );
+        }),
+        toArray(),
+      )
+      .subscribe((resultados) => {
         this.salvando.set(false);
-        this.erro.set(
-          registroExistente
-            ? 'Não foi possível salvar as alterações.'
-            : 'Não foi possível enviar o arquivo. Verifique o tamanho e o formato.',
-        );
-      },
-    });
-  }
+        const enviados = resultados
+          .filter((r): r is { ok: true; registro: RegistroObra } => r.ok)
+          .map((r) => r.registro);
+        const falhas = resultados
+          .filter((r): r is { ok: false; nome: string } => !r.ok)
+          .map((r) => r.nome);
 
-  cancelar(): void {
-    this.dialogRef.close(undefined);
-  }
-
-  private liberarPreview(): void {
-    const url = this.previewLocal();
-    if (url) {
-      URL.revokeObjectURL(url);
-      this.previewLocal.set(null);
-    }
+        this.dialogRef.close({ enviados, falhas });
+      });
   }
 }
 
