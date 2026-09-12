@@ -55,7 +55,7 @@ export class ExpensesService {
 
     const expenses = await this.prisma.expense.findMany({
       where,
-      orderBy: { data: 'desc' },
+      orderBy: { createdAt: 'desc' },
     });
 
     return expenses.map((expense) => this.serialize(expense));

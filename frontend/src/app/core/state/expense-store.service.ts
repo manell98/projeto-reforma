@@ -324,7 +324,7 @@ export class ExpenseStoreService {
   // tabela inteira e jogava a página pro topo a cada salvamento.
   adicionarDespesaLocal(despesa: Expense): void {
     this._expenses.update((atual) =>
-      [...atual, despesa].sort((a, b) => (a.data < b.data ? 1 : a.data > b.data ? -1 : 0)),
+      [...atual, despesa].sort((a, b) => (a.createdAt < b.createdAt ? 1 : a.createdAt > b.createdAt ? -1 : 0)),
     );
   }
 
@@ -332,7 +332,7 @@ export class ExpenseStoreService {
     this._expenses.update((atual) =>
       atual
         .map((item) => (item.id === despesa.id ? despesa : item))
-        .sort((a, b) => (a.data < b.data ? 1 : a.data > b.data ? -1 : 0)),
+        .sort((a, b) => (a.createdAt < b.createdAt ? 1 : a.createdAt > b.createdAt ? -1 : 0)),
     );
   }
 
