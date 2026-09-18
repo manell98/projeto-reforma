@@ -53,9 +53,14 @@ export class ExpensesService {
       };
     }
 
+    // Ordena pela data da despesa (o que o usuário vê e espera), não pela
+    // data de cadastro — createdAt só desempata quando duas despesas caem
+    // no mesmo dia, mostrando a lançada mais recentemente primeiro. Ordenar
+    // só por createdAt (como era antes) misturava datas fora de ordem: uma
+    // despesa de 15/09 cadastrada depois de uma de 18/09 aparecia acima.
     const expenses = await this.prisma.expense.findMany({
       where,
-      orderBy: { createdAt: 'desc' },
+      orderBy: [{ data: 'desc' }, { createdAt: 'desc' }],
     });
 
     return expenses.map((expense) => this.serialize(expense));

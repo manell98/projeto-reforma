@@ -275,7 +275,7 @@ export class ExpenseStoreService {
       .subscribe({
         next: ({ categorias, despesas, orcamentos, obra }) => {
           this._categorias.set(categorias);
-          this._expenses.set(despesas);
+          this._expenses.set(this.ordenarDespesas(despesas));
           this._orcamentos.set({
             ...ORCAMENTOS_VAZIOS,
             ...Object.fromEntries(orcamentos.map((o) => [o.tipo, o.valor])),
@@ -299,7 +299,7 @@ export class ExpenseStoreService {
       .getAll()
       .pipe(finalize(() => this._loading.set(false)))
       .subscribe({
-        next: (expenses) => this._expenses.set(expenses),
+        next: (expenses) => this._expenses.set(this.ordenarDespesas(expenses)),
         error: () =>
           this._error.set(
             'Não foi possível carregar as despesas. Verifique se a API está rodando.',
@@ -321,18 +321,26 @@ export class ExpenseStoreService {
 
   // Atualiza a lista localmente em vez de refazer o GET /expenses inteiro
   // após criar/editar/excluir — evita o "flash" de loading que desmontava a
-  // tabela inteira e jogava a página pro topo a cada salvamento.
+  // tabela inteira e jogava a página pro topo a cada salvamento. Mesma
+  // ordenação do backend (`ExpensesService.findAll`): data da despesa desc,
+  // createdAt desc só para desempatar duas despesas do mesmo dia. Ordenar
+  // só por createdAt (como era antes) misturava datas fora de ordem.
+  private ordenarDespesas(despesas: Expense[]): Expense[] {
+    return [...despesas].sort((a, b) => {
+      const porData = b.data.localeCompare(a.data);
+      return porData !== 0 ? porData : b.createdAt.localeCompare(a.createdAt);
+    });
+  }
+
   adicionarDespesaLocal(despesa: Expense): void {
-    this._expenses.update((atual) =>
-      [...atual, despesa].sort((a, b) => (a.createdAt < b.createdAt ? 1 : a.createdAt > b.createdAt ? -1 : 0)),
-    );
+    this._expenses.update((atual) => this.ordenarDespesas([...atual, despesa]));
   }
 
   atualizarDespesaLocal(despesa: Expense): void {
     this._expenses.update((atual) =>
-      atual
-        .map((item) => (item.id === despesa.id ? despesa : item))
-        .sort((a, b) => (a.createdAt < b.createdAt ? 1 : a.createdAt > b.createdAt ? -1 : 0)),
+      this.ordenarDespesas(
+        atual.map((item) => (item.id === despesa.id ? despesa : item)),
+      ),
     );
   }
 
