@@ -6,13 +6,18 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ExpenseStoreService } from '../../core/state/expense-store.service';
-import { ExpenseFilters } from '../../core/models/expense.model';
+import { Expense, ExpenseFilters } from '../../core/models/expense.model';
 import { ExpenseFiltersComponent } from './components/expense-filters/expense-filters.component';
 import { ExpenseTableComponent } from './components/expense-table/expense-table.component';
 import {
   ExpenseFormDialogComponent,
   ExpenseFormDialogData,
 } from './components/expense-form-dialog/expense-form-dialog.component';
+import { exportarCsv } from '../../shared/utils/csv-export.util';
+import {
+  formaPagamentoLabel,
+  parcelasLabel,
+} from '../../shared/utils/forma-pagamento.util';
 
 const FILTROS_VAZIOS: ExpenseFilters = {
   dataInicio: null,
@@ -76,6 +81,58 @@ export class ExpensesListComponent {
 
   limparFiltros(): void {
     this.filtros.set({ ...FILTROS_VAZIOS });
+  }
+
+  exportarDespesasCsv(): void {
+    const despesas = this.despesasFiltradas();
+    if (despesas.length === 0) {
+      this.snackBar.open(
+        'Não há despesas para exportar com os filtros atuais.',
+        'Fechar',
+        { duration: 4000 },
+      );
+      return;
+    }
+
+    const labels = this.store.categoriaLabels();
+    const hoje = new Date();
+    const dataArquivo = [
+      hoje.getFullYear(),
+      String(hoje.getMonth() + 1).padStart(2, '0'),
+      String(hoje.getDate()).padStart(2, '0'),
+    ].join('-');
+
+    exportarCsv<Expense>(
+      `despesas-reforma-${dataArquivo}.csv`,
+      [
+        {
+          cabecalho: 'Data',
+          valor: (despesa) => {
+            const [ano, mes, dia] = despesa.data.slice(0, 10).split('-');
+            return `${dia}/${mes}/${ano}`;
+          },
+        },
+        { cabecalho: 'Descrição', valor: (despesa) => despesa.descricao },
+        {
+          cabecalho: 'Categoria',
+          valor: (despesa) => labels.get(despesa.categoria) ?? despesa.categoria,
+        },
+        {
+          cabecalho: 'Valor',
+          valor: (despesa) => despesa.valor.toFixed(2).replace('.', ','),
+        },
+        { cabecalho: 'Forma de pagamento', valor: (despesa) => formaPagamentoLabel(despesa) },
+        {
+          cabecalho: 'Parcelas',
+          valor: (despesa) => {
+            const label = parcelasLabel(despesa);
+            return label === '—' ? '' : label.replace('x', '');
+          },
+        },
+        { cabecalho: 'Observação', valor: (despesa) => despesa.observacao ?? '' },
+      ],
+      despesas,
+    );
   }
 
   novaDespesa(): void {
