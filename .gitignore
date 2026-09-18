@@ -20,3 +20,6 @@ coverage/
 
 # Arquivos enviados pelo usuário (fotos/vídeos da evolução da obra)
 uploads/
+
+# Dumps de backup do banco de dados (dados reais — nunca commitar)
+backups/

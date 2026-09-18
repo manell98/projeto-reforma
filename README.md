@@ -29,6 +29,8 @@ docker compose up -d
 
 Isso sobe um PostgreSQL 16 com um volume nomeado (`reforma_postgres_data`), então os dados persistem entre reinícios do container.
 
+Para tirar um backup manual do banco (dump via `pg_dump`), rode `npm run db:backup` na raiz — o arquivo é salvo em `backups/` (gitignored).
+
 ### 2. Backend (API)
 
 ```bash
