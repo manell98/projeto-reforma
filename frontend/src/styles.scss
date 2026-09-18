@@ -430,3 +430,23 @@ body {
     max-width: 320px;
   }
 }
+
+// --- Alerta de orçamento próximo do limite ------------------------------
+// Bloco aditivo para o estágio intermediário de aviso (consumo >= 80%, ainda
+// não excedido) — ver LIMIAR_ALERTA_ORCAMENTO em expense-store.service.ts.
+// Reaproveita a paleta laranja de --color-accent/--color-accent-bg (hoje
+// pouco usada) para não confundir visualmente com o vermelho de "excedido".
+.status-pill.alerta {
+  background: var(--color-accent-bg);
+  color: var(--color-accent);
+}
+
+.budget-alert.aviso {
+  background: var(--color-accent-bg);
+  color: var(--color-accent);
+  border-color: rgba(180, 83, 9, 0.22);
+
+  mat-icon {
+    color: var(--color-accent);
+  }
+}

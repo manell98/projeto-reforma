@@ -58,10 +58,16 @@ export class OrcamentoEspecificoPanelComponent {
     this.store.orcamentoEspecificoConfigurado(this.tipo()),
   );
   readonly excedido = computed(() => this.store.excedidoEspecifico(this.tipo()));
+  readonly proximoDoLimite = computed(() =>
+    this.store.proximoDoLimiteEspecifico(this.tipo()),
+  );
   readonly progresso = computed(() =>
     Math.min(this.percentualConsumido(), 100),
   );
   readonly valorExcedente = computed(() => Math.abs(this.saldo()));
+  readonly percentualArredondado = computed(() =>
+    Math.round(this.percentualConsumido()),
+  );
 
   readonly formOrcamento = this.fb.nonNullable.group({
     valor: [null as number | null, [Validators.required, Validators.min(0)]],

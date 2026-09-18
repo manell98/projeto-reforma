@@ -8,9 +8,20 @@
         <span class="painel-title-label">{{ titulo() }}</span>
       </div>
       @if (orcamentoConfigurado()) {
-        <span class="status-pill" [class.ok]="!excedido()" [class.danger]="excedido()">
+        <span
+          class="status-pill"
+          [class.danger]="excedido()"
+          [class.alerta]="proximoDoLimite()"
+          [class.ok]="!excedido() && !proximoDoLimite()"
+        >
           <span class="dot"></span>
-          {{ excedido() ? 'Excedido' : 'Em dia' }}
+          @if (excedido()) {
+            Excedido
+          } @else if (proximoDoLimite()) {
+            Atenção
+          } @else {
+            Em dia
+          }
         </span>
       }
     </div>
@@ -94,6 +105,14 @@
             {{
               valorExcedente() | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR'
             }}</span
+          >
+        </div>
+      } @else if (proximoDoLimite()) {
+        <div class="budget-alert aviso">
+          <mat-icon>warning</mat-icon>
+          <span
+            >Atenção: {{ percentualArredondado() }}% do orçamento já foi
+            consumido.</span
           >
         </div>
       }
