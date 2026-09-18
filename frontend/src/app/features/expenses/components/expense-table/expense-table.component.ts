@@ -1,17 +1,14 @@
-import {
-  AfterViewInit,
-  Component,
-  effect,
-  inject,
-  input,
-  ViewChild,
-} from '@angular/core';
+import { Component, effect, inject, input, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
-import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import {
+  MatPaginator,
+  MatPaginatorIntl,
+  MatPaginatorModule,
+} from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSort, MatSortModule } from '@angular/material/sort';
@@ -30,6 +27,7 @@ import {
   formaPagamentoLabel,
   parcelasLabel,
 } from '../../../../shared/utils/forma-pagamento.util';
+import { criarMatPaginatorIntlPtBr } from '../../../../shared/utils/paginator-intl-pt-br.util';
 
 @Component({
   selector: 'app-expense-table',
@@ -45,10 +43,16 @@ import {
     MatTooltipModule,
     MatProgressSpinnerModule,
   ],
+  // Provider escopado a este componente (não em app.config.ts de propósito):
+  // colocá-lo no nível raiz da aplicação puxaria o módulo do paginator pro
+  // bundle inicial (eager), estourando o orçamento de ~650kB — todas as
+  // rotas são lazy justamente pra manter esse bundle pequeno. Aqui ele fica
+  // dentro do mesmo chunk lazy de /despesas, sem custo nenhum no boot.
+  providers: [{ provide: MatPaginatorIntl, useValue: criarMatPaginatorIntlPtBr() }],
   templateUrl: './expense-table.component.html',
   styleUrl: './expense-table.component.scss',
 })
-export class ExpenseTableComponent implements AfterViewInit {
+export class ExpenseTableComponent {
   readonly store = inject(ExpenseStoreService);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
@@ -71,8 +75,22 @@ export class ExpenseTableComponent implements AfterViewInit {
 
   readonly dataSource = new MatTableDataSource<Expense>([]);
 
-  @ViewChild(MatSort) private sort?: MatSort;
-  @ViewChild(MatPaginator) private paginator?: MatPaginator;
+  // `@ViewChild` como setter, não como propriedade simples: a tabela/o
+  // paginador vivem dentro do `@else` do estado de loading/erro/vazio (ver
+  // o template), então na primeira passada de `ngAfterViewInit` eles ainda
+  // não existem (a store começa em `loading()`). Uma propriedade simples só
+  // resolveria uma vez e ficaria `undefined` para sempre; o setter é
+  // chamado de novo assim que o Angular encontra o elemento, quando o
+  // `@else` finalmente renderiza — sem isso, `dataSource.sort`/`.paginator`
+  // nunca eram conectados e sort/paginação pareciam não fazer nada (bug
+  // real, encontrado ao validar visualmente antes do merge).
+  @ViewChild(MatSort) set sort(valor: MatSort | undefined) {
+    if (valor) this.dataSource.sort = valor;
+  }
+
+  @ViewChild(MatPaginator) set paginator(valor: MatPaginator | undefined) {
+    if (valor) this.dataSource.paginator = valor;
+  }
 
   constructor() {
     // `sortingDataAccessor` centraliza a comparação por coluna: strings ISO
@@ -106,15 +124,10 @@ export class ExpenseTableComponent implements AfterViewInit {
     });
   }
 
-  ngAfterViewInit(): void {
-    if (this.sort) this.dataSource.sort = this.sort;
-    if (this.paginator) this.dataSource.paginator = this.paginator;
-  }
-
   // Chamado pela tela de despesas quando os filtros mudam, pra não deixar o
   // usuário "preso" numa página que ficou vazia após filtrar.
   irParaPrimeiraPagina(): void {
-    this.paginator?.firstPage();
+    this.dataSource.paginator?.firstPage();
   }
 
   // Mesmos ícones já usados na tela de formas de pagamento.
