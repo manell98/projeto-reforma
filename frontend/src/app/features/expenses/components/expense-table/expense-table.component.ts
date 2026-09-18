@@ -1,12 +1,18 @@
-import { Component, inject, input } from '@angular/core';
+import { Component, effect, inject, input, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
+import {
+  MatPaginator,
+  MatPaginatorIntl,
+  MatPaginatorModule,
+} from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatTableModule } from '@angular/material/table';
+import { MatSort, MatSortModule } from '@angular/material/sort';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ExpenseStoreService } from '../../../../core/state/expense-store.service';
 import { Expense } from '../../../../core/models/expense.model';
@@ -21,6 +27,7 @@ import {
   formaPagamentoLabel,
   parcelasLabel,
 } from '../../../../shared/utils/forma-pagamento.util';
+import { criarMatPaginatorIntlPtBr } from '../../../../shared/utils/paginator-intl-pt-br.util';
 
 @Component({
   selector: 'app-expense-table',
@@ -29,11 +36,19 @@ import {
     CommonModule,
     MatCardModule,
     MatTableModule,
+    MatSortModule,
+    MatPaginatorModule,
     MatButtonModule,
     MatIconModule,
     MatTooltipModule,
     MatProgressSpinnerModule,
   ],
+  // Provider escopado a este componente (não em app.config.ts de propósito):
+  // colocá-lo no nível raiz da aplicação puxaria o módulo do paginator pro
+  // bundle inicial (eager), estourando o orçamento de ~650kB — todas as
+  // rotas são lazy justamente pra manter esse bundle pequeno. Aqui ele fica
+  // dentro do mesmo chunk lazy de /despesas, sem custo nenhum no boot.
+  providers: [{ provide: MatPaginatorIntl, useValue: criarMatPaginatorIntlPtBr() }],
   templateUrl: './expense-table.component.html',
   styleUrl: './expense-table.component.scss',
 })
@@ -57,6 +72,63 @@ export class ExpenseTableComponent {
 
   readonly formaPagamentoLabel = formaPagamentoLabel;
   readonly parcelasLabel = parcelasLabel;
+
+  readonly dataSource = new MatTableDataSource<Expense>([]);
+
+  // `@ViewChild` como setter, não como propriedade simples: a tabela/o
+  // paginador vivem dentro do `@else` do estado de loading/erro/vazio (ver
+  // o template), então na primeira passada de `ngAfterViewInit` eles ainda
+  // não existem (a store começa em `loading()`). Uma propriedade simples só
+  // resolveria uma vez e ficaria `undefined` para sempre; o setter é
+  // chamado de novo assim que o Angular encontra o elemento, quando o
+  // `@else` finalmente renderiza — sem isso, `dataSource.sort`/`.paginator`
+  // nunca eram conectados e sort/paginação pareciam não fazer nada (bug
+  // real, encontrado ao validar visualmente antes do merge).
+  @ViewChild(MatSort) set sort(valor: MatSort | undefined) {
+    if (valor) this.dataSource.sort = valor;
+  }
+
+  @ViewChild(MatPaginator) set paginator(valor: MatPaginator | undefined) {
+    if (valor) this.dataSource.paginator = valor;
+  }
+
+  constructor() {
+    // `sortingDataAccessor` centraliza a comparação por coluna: strings ISO
+    // (data) ordenam bem lexicograficamente, e os campos nulos (parcelas)
+    // precisam de um valor sentinela — aqui, "sem informação" sempre fica no
+    // início em ordem crescente (tratado como menor que qualquer valor real).
+    this.dataSource.sortingDataAccessor = (despesa, coluna) => {
+      switch (coluna) {
+        case 'data':
+          return despesa.data;
+        case 'descricao':
+          return despesa.descricao.toLowerCase();
+        case 'categoria':
+          return this.store.categoriaLabels().get(despesa.categoria) ?? despesa.categoria;
+        case 'formaPagamento':
+          return formaPagamentoLabel(despesa);
+        case 'parcelas':
+          return despesa.parcelas ?? -1;
+        case 'valor':
+          return despesa.valor;
+        default:
+          return '';
+      }
+    };
+
+    // O `input()` de despesas muda a cada filtro/ordenação de origem — este
+    // effect mantém o data source (e portanto sort/paginator) sincronizado
+    // sem recriar a instância, o que preservaria a página/ordenação atuais.
+    effect(() => {
+      this.dataSource.data = this.despesas();
+    });
+  }
+
+  // Chamado pela tela de despesas quando os filtros mudam, pra não deixar o
+  // usuário "preso" numa página que ficou vazia após filtrar.
+  irParaPrimeiraPagina(): void {
+    this.dataSource.paginator?.firstPage();
+  }
 
   // Mesmos ícones já usados na tela de formas de pagamento.
   iconeFormaPagamento(despesa: Expense): string {

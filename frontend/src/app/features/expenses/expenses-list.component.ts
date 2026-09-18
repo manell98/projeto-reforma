@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal, viewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
@@ -40,6 +40,8 @@ export class ExpensesListComponent {
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
 
+  private readonly tabela = viewChild(ExpenseTableComponent);
+
   private readonly filtros = signal<ExpenseFilters>({ ...FILTROS_VAZIOS });
 
   readonly temFiltrosAtivos = computed(() => {
@@ -72,10 +74,12 @@ export class ExpensesListComponent {
 
   aplicarFiltros(filtros: ExpenseFilters): void {
     this.filtros.set(filtros);
+    this.tabela()?.irParaPrimeiraPagina();
   }
 
   limparFiltros(): void {
     this.filtros.set({ ...FILTROS_VAZIOS });
+    this.tabela()?.irParaPrimeiraPagina();
   }
 
   novaDespesa(): void {
