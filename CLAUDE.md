@@ -30,6 +30,7 @@ npm run dev          # Postgres (waits for healthy) + backend + frontend, all in
 npm run stop         # kills anything left on ports 3000/4200 (does NOT stop Postgres)
 npm run db:up        # just Postgres
 npm run db:down      # stops the Postgres container (data survives — named volume)
+npm run db:backup    # pg_dump into backups/reforma-<date>-<time>.sql, keeping only the newest MAX_BACKUPS
 ```
 
 `npm run dev` streams both apps' logs prefixed with `backend`/`frontend`, and `concurrently -k` takes one down if the other dies. Ctrl+C in a real terminal should stop both — but on Windows a signal that doesn't reach the whole console group can leave `nest`/`ng` orphans holding the ports, so **finish with `npm run stop`** (it kills port holders *and* orphaned parents, then verifies). Postgres is left running on purpose, since the container is cheap and the data lives in the `reforma_postgres_data` named volume.

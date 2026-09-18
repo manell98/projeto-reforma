@@ -9,6 +9,7 @@
     "db:down": "docker compose --env-file backend/.env -f backend/docker-compose.yml down",
     "dev": "npm run db:up && concurrently -k -n backend,frontend -c cyan,magenta \"npm --prefix backend run start:dev\" \"npm --prefix frontend start\"",
     "stop": "node scripts/stop.mjs",
+    "db:backup": "node scripts/backup-db.mjs",
     "build": "npm --prefix backend run build && npm --prefix frontend run build"
   },
   "devDependencies": {
