@@ -36,6 +36,10 @@ npm run db:down      # stops the Postgres container (data survives — named vol
 
 Do **not** add a short-lived job (an `echo`, a one-shot check) to that `concurrently` list: `-k` kills every process as soon as *any* of them exits, so a job that returns immediately takes the whole stack down with it. This was a real bug in the first version of the script.
 
+#### Acessar do celular na mesma wifi
+
+With `npm run dev` running, the app is also reachable from a phone/tablet on the same wifi as the PC: find the PC's LAN IP (`ipconfig` on Windows, the active adapter's IPv4 address, e.g. `192.168.0.10`) and open `http://<IP>:4200` on the phone's browser. This works because `ng serve` binds `--host 0.0.0.0` (not just `localhost`), `environment.ts`/`environment.development.ts` derive `apiUrl` from `window.location.hostname` instead of hardcoding `localhost`, and the backend's default CORS policy (see `main.ts`) accepts any private-LAN IP on port 4200, not just `localhost:4200`.
+
 ### Backend (`backend/`)
 
 ```bash
