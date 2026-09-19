@@ -36,9 +36,20 @@
             </div>
           </div>
         </div>
-        <span class="status-pill" [class.ok]="!store.orcamentoExcedido()" [class.danger]="store.orcamentoExcedido()">
+        <span
+          class="status-pill"
+          [class.danger]="store.orcamentoExcedido()"
+          [class.alerta]="store.orcamentoProximoDoLimite()"
+          [class.ok]="!store.orcamentoExcedido() && !store.orcamentoProximoDoLimite()"
+        >
           <span class="dot"></span>
-          {{ store.orcamentoExcedido() ? 'Orçamento excedido' : 'Dentro do orçamento' }}
+          @if (store.orcamentoExcedido()) {
+            Orçamento excedido
+          } @else if (store.orcamentoProximoDoLimite()) {
+            Atenção ao orçamento
+          } @else {
+            Dentro do orçamento
+          }
         </span>
       </div>
 
@@ -88,6 +99,14 @@
             {{
               valorExcedente() | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR'
             }}</span
+          >
+        </div>
+      } @else if (store.orcamentoProximoDoLimite()) {
+        <div class="budget-alert aviso">
+          <mat-icon>warning</mat-icon>
+          <span
+            >Atenção: {{ percentualArredondado() }}% do orçamento já foi
+            consumido.</span
           >
         </div>
       }

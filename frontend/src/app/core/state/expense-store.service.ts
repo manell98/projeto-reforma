@@ -20,6 +20,13 @@ import {
   paraDataLocal,
 } from '../../shared/utils/duracao.util';
 
+// Limiar (80%) a partir do qual o consumo de um orçamento passa a disparar o
+// alerta preventivo de "próximo do limite" — antes do orçamento realmente
+// estourar (saldo < 0). 80% foi escolhido por ser um ponto de corte comum em
+// ferramentas de controle financeiro: dá margem de reação a quem está
+// acompanhando sem soar alarme cedo demais.
+export const LIMIAR_ALERTA_ORCAMENTO = 0.8;
+
 export interface CategoriaTotal {
   categoria: string;
   label: string;
@@ -233,6 +240,28 @@ export class ExpenseStoreService {
     return (
       this.orcamentoEspecificoConfigurado(tipo) &&
       this.saldoEspecifico(tipo) < 0
+    );
+  }
+
+  // --- Alerta de orçamento próximo do limite ------------------------------
+  // Estágio intermediário entre "dentro do orçamento" e "excedido": sinaliza
+  // quando o consumo já passou de LIMIAR_ALERTA_ORCAMENTO mas o saldo ainda
+  // é positivo. Mutuamente exclusivo com o "excedido" correspondente por
+  // construção (a checagem `!orcamentoExcedido()`/`!excedidoEspecifico(tipo)`
+  // já garante isso), então os componentes que consomem isto podem tratar as
+  // duas flags como estados alternativos, nunca simultâneos.
+  readonly orcamentoProximoDoLimite = computed(
+    () =>
+      this.orcamentoConfigurado() &&
+      !this.orcamentoExcedido() &&
+      this.percentualConsumido() >= LIMIAR_ALERTA_ORCAMENTO * 100,
+  );
+
+  proximoDoLimiteEspecifico(tipo: TipoOrcamentoEspecifico): boolean {
+    return (
+      this.orcamentoEspecificoConfigurado(tipo) &&
+      !this.excedidoEspecifico(tipo) &&
+      this.percentualEspecificoConsumido(tipo) >= LIMIAR_ALERTA_ORCAMENTO * 100
     );
   }
 
