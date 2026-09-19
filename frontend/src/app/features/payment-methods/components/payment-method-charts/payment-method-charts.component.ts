@@ -20,8 +20,14 @@ import {
   NgApexchartsModule,
 } from 'ng-apexcharts';
 import { ExpenseStoreService } from '../../../../core/state/expense-store.service';
+import { ThemeService } from '../../../../core/services/theme.service';
 import { ResumoFormasPagamento } from '../../../../shared/utils/forma-pagamento.util';
-import { PALETA_CORES, TEXTO_COR } from '../../../../shared/utils/chart-theme.util';
+import {
+  PALETA_CORES,
+  corNoDataGrafico,
+  corTextoGrafico,
+  temaTooltipGrafico,
+} from '../../../../shared/utils/chart-theme.util';
 
 // Mesmas cores usadas nos gráficos do dashboard (índices 2/0/1 da paleta
 // compartilhada = verde/índigo/laranja), na ordem Pix / Crédito 1x / Crédito
@@ -49,11 +55,18 @@ const CORES_FORMAS_PAGAMENTO = [
 })
 export class PaymentMethodChartsComponent {
   readonly store = inject(ExpenseStoreService);
+  private readonly tema = inject(ThemeService);
   readonly resumo = input.required<ResumoFormasPagamento>();
 
   readonly cores = CORES_FORMAS_PAGAMENTO;
 
   readonly rotulos = ['Pix', 'Crédito 1x', 'Crédito parcelado', 'Não informado'];
+
+  // Ver o mesmo padrão em expense-charts.component.ts: essas cores precisam
+  // reagir ao tema claro/escuro, não podem ser constantes fixas.
+  private readonly corTexto = computed(() => corTextoGrafico(this.tema.escuro()));
+  private readonly temaTooltip = computed(() => temaTooltipGrafico(this.tema.escuro()));
+  private readonly corNoData = computed(() => corNoDataGrafico(this.tema.escuro()));
 
   readonly valorSeries = computed<ApexNonAxisChartSeries>(() => {
     const r = this.resumo();
@@ -77,10 +90,10 @@ export class PaymentMethodChartsComponent {
     ];
   });
 
-  readonly xaxisFormas: ApexXAxis = {
+  readonly xaxisFormas = computed<ApexXAxis>(() => ({
     categories: this.rotulos,
-    labels: { style: { colors: TEXTO_COR } },
-  };
+    labels: { style: { colors: this.corTexto() } },
+  }));
 
   readonly parcelamentoSeries = computed<ApexAxisChartSeries>(() => [
     {
@@ -91,20 +104,24 @@ export class PaymentMethodChartsComponent {
 
   readonly xaxisParcelamento = computed<ApexXAxis>(() => ({
     categories: this.resumo().distribuicaoParcelas.map((p) => `${p.parcelas}x`),
-    labels: { style: { colors: TEXTO_COR } },
+    labels: { style: { colors: this.corTexto() } },
   }));
 
-  readonly yaxisComTexto: ApexYAxis = {
-    labels: { style: { colors: TEXTO_COR } },
-  };
+  readonly yaxisComTexto = computed<ApexYAxis>(() => ({
+    labels: { style: { colors: this.corTexto() } },
+  }));
 
-  readonly donutChart: ApexChart = { type: 'donut', height: 300, foreColor: TEXTO_COR };
-  readonly barChart: ApexChart = {
+  readonly donutChart = computed<ApexChart>(() => ({
+    type: 'donut',
+    height: 300,
+    foreColor: this.corTexto(),
+  }));
+  readonly barChart = computed<ApexChart>(() => ({
     type: 'bar',
     height: 300,
     toolbar: { show: false },
-    foreColor: TEXTO_COR,
-  };
+    foreColor: this.corTexto(),
+  }));
 
   readonly plotOptionsBar: ApexPlotOptions = {
     bar: { borderRadius: 4, columnWidth: '55%' },
@@ -112,23 +129,23 @@ export class PaymentMethodChartsComponent {
 
   readonly dataLabelsOff: ApexDataLabels = { enabled: false };
 
-  readonly legendBottom: ApexLegend = {
+  readonly legendBottom = computed<ApexLegend>(() => ({
     position: 'bottom',
-    labels: { colors: TEXTO_COR },
-  };
+    labels: { colors: this.corTexto() },
+  }));
   readonly legendHidden: ApexLegend = { show: false };
 
-  readonly tooltipMoeda: ApexTooltip = {
-    theme: 'light',
+  readonly tooltipMoeda = computed<ApexTooltip>(() => ({
+    theme: this.temaTooltip(),
     y: { formatter: (val: number) => this.formatarMoeda(val) },
-  };
+  }));
 
-  readonly tooltipQuantidade: ApexTooltip = { theme: 'light' };
+  readonly tooltipQuantidade = computed<ApexTooltip>(() => ({ theme: this.temaTooltip() }));
 
-  readonly noData: ApexNoData = {
+  readonly noData = computed<ApexNoData>(() => ({
     text: 'Nenhuma despesa encontrada para os filtros aplicados.',
-    style: { color: 'rgba(31, 39, 51, 0.55)' },
-  };
+    style: { color: this.corNoData() },
+  }));
 
   private formatarMoeda(valor: number): string {
     return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });

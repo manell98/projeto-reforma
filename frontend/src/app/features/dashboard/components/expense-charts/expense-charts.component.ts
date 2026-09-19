@@ -24,7 +24,13 @@ import {
   NgApexchartsModule,
 } from 'ng-apexcharts';
 import { ExpenseStoreService } from '../../../../core/state/expense-store.service';
-import { PALETA_CORES, TEXTO_COR } from '../../../../shared/utils/chart-theme.util';
+import { ThemeService } from '../../../../core/services/theme.service';
+import {
+  PALETA_CORES,
+  corNoDataGrafico,
+  corTextoGrafico,
+  temaTooltipGrafico,
+} from '../../../../shared/utils/chart-theme.util';
 
 @Component({
   selector: 'app-expense-charts',
@@ -41,8 +47,16 @@ import { PALETA_CORES, TEXTO_COR } from '../../../../shared/utils/chart-theme.ut
 })
 export class ExpenseChartsComponent {
   readonly store = inject(ExpenseStoreService);
+  private readonly tema = inject(ThemeService);
 
   readonly cores = PALETA_CORES;
+
+  // Cor de texto/tooltip/"sem dados" recalculada quando o tema claro/escuro
+  // muda — ver o comentário de chart-theme.util.ts sobre por que isso não
+  // pode ser uma constante fixa.
+  private readonly corTexto = computed(() => corTextoGrafico(this.tema.escuro()));
+  private readonly temaTooltip = computed(() => temaTooltipGrafico(this.tema.escuro()));
+  private readonly corNoData = computed(() => corNoDataGrafico(this.tema.escuro()));
 
   readonly distribuicaoSeries = computed<ApexNonAxisChartSeries>(() =>
     this.store.porCategoria().map((c) => Number(c.total.toFixed(2))),
@@ -68,7 +82,7 @@ export class ExpenseChartsComponent {
   );
   readonly xaxisRanking = computed<ApexXAxis>(() => ({
     categories: this.rankingCategorias(),
-    labels: { style: { colors: TEXTO_COR } },
+    labels: { style: { colors: this.corTexto() } },
   }));
 
   readonly evolucaoSeries = computed<ApexAxisChartSeries>(() =>
@@ -88,64 +102,64 @@ export class ExpenseChartsComponent {
   );
   readonly xaxisEvolucao = computed<ApexXAxis>(() => ({
     categories: this.evolucaoMeses(),
-    labels: { style: { colors: TEXTO_COR } },
+    labels: { style: { colors: this.corTexto() } },
   }));
 
-  readonly yaxisComTexto: ApexYAxis = {
-    labels: { style: { colors: TEXTO_COR } },
-  };
+  readonly yaxisComTexto = computed<ApexYAxis>(() => ({
+    labels: { style: { colors: this.corTexto() } },
+  }));
 
   // Eixo Y do card "Evolução dos gastos por mês" — mesmos valores do
   // yaxisComTexto, mas com formatter em reais (ex: "R$ 1.000,00") em vez do
   // número cru, seguindo o mesmo padrão de moeda já usado no tooltip.
-  readonly yaxisEvolucaoComMoeda: ApexYAxis = {
+  readonly yaxisEvolucaoComMoeda = computed<ApexYAxis>(() => ({
     labels: {
-      style: { colors: TEXTO_COR },
+      style: { colors: this.corTexto() },
       formatter: (val: number) => this.formatarMoeda(val),
     },
-  };
+  }));
 
-  readonly donutChart: ApexChart = {
+  readonly donutChart = computed<ApexChart>(() => ({
     type: 'donut',
     height: 300,
-    foreColor: TEXTO_COR,
-  };
-  readonly barChart: ApexChart = {
+    foreColor: this.corTexto(),
+  }));
+  readonly barChart = computed<ApexChart>(() => ({
     type: 'bar',
     height: 320,
     toolbar: { show: false },
-    foreColor: TEXTO_COR,
-  };
-  readonly lineChart: ApexChart = {
+    foreColor: this.corTexto(),
+  }));
+  readonly lineChart = computed<ApexChart>(() => ({
     type: 'area',
     height: 300,
     toolbar: { show: false },
-    foreColor: TEXTO_COR,
-  };
+    foreColor: this.corTexto(),
+  }));
 
   readonly plotOptionsBarHorizontal: ApexPlotOptions = {
     bar: { horizontal: true, borderRadius: 4, dataLabels: { position: 'top' } },
   };
 
-  readonly dataLabelsBar: ApexDataLabels = {
+  readonly dataLabelsBar = computed<ApexDataLabels>(() => ({
     enabled: true,
     formatter: (val: number) => this.formatarMoeda(val),
     offsetX: 24,
-    style: { colors: [TEXTO_COR] },
-  };
+    style: { colors: [this.corTexto()] },
+  }));
 
   readonly dataLabelsOff: ApexDataLabels = { enabled: false };
 
-  readonly legendBottom: ApexLegend = {
+  readonly legendBottom = computed<ApexLegend>(() => ({
     position: 'bottom',
-    labels: { colors: TEXTO_COR },
-  };
+    labels: { colors: this.corTexto() },
+  }));
   readonly legendHidden: ApexLegend = { show: false };
 
-  readonly tooltipMoeda: ApexTooltip = {
-    theme: 'light',
+  readonly tooltipMoeda = computed<ApexTooltip>(() => ({
+    theme: this.temaTooltip(),
     y: { formatter: (val: number) => this.formatarMoeda(val) },
-  };
+  }));
 
   readonly strokeLine: ApexStroke = { curve: 'smooth', width: 2 };
 
@@ -154,10 +168,10 @@ export class ExpenseChartsComponent {
     gradient: { shadeIntensity: 1, opacityFrom: 0.4, opacityTo: 0.05 },
   };
 
-  readonly noData: ApexNoData = {
+  readonly noData = computed<ApexNoData>(() => ({
     text: 'Sem despesas cadastradas ainda.',
-    style: { color: 'rgba(31, 39, 51, 0.55)' },
-  };
+    style: { color: this.corNoData() },
+  }));
 
   private formatarMoeda(valor: number): string {
     return valor.toLocaleString('pt-BR', {

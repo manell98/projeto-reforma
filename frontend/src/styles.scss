@@ -1,56 +1,135 @@
 @use '@angular/material' as mat;
 
+$tema-claro: (
+  color: (
+    theme-type: light,
+    primary: mat.$azure-palette,
+    tertiary: mat.$orange-palette,
+  ),
+  typography: Roboto,
+  density: 0,
+);
+
+$tema-escuro: (
+  color: (
+    theme-type: dark,
+    primary: mat.$azure-palette,
+    tertiary: mat.$orange-palette,
+  ),
+  typography: Roboto,
+  density: 0,
+);
+
+// Tokens de design compartilhados por toda a aplicação — espaçamento, raio de
+// borda, sombras, cores semânticas (sucesso/alerta/perigo/neutro) e as duas
+// superfícies (`--color-surface` para cards/mat-card manuais, `--color-bg-page`
+// para o fundo por trás deles). Mantidos como custom properties para
+// reaproveitar em qualquer .scss de componente sem duplicar valores mágicos.
+@mixin tokens-tema-claro {
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+
+  --shadow-xs: 0 1px 2px rgba(15, 23, 42, 0.05);
+  --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-md: 0 4px 14px rgba(15, 23, 42, 0.08);
+
+  --color-bg-page: #f4f6fb;
+  --color-surface: #ffffff;
+
+  --color-text-primary: #1f2733;
+  --color-text-secondary: rgba(31, 39, 51, 0.62);
+  --color-text-muted: rgba(31, 39, 51, 0.45);
+
+  --color-border: rgba(15, 23, 42, 0.08);
+
+  --color-success: #1a7f47;
+  --color-success-bg: #e9f7ef;
+  --color-success-border: rgba(26, 127, 71, 0.22);
+
+  --color-danger: #c62828;
+  --color-danger-bg: #fdecea;
+  --color-danger-border: rgba(198, 40, 40, 0.22);
+
+  --color-info: #2f5fd0;
+  --color-info-bg: #eaf0fd;
+
+  --color-accent: #b45309;
+  --color-accent-bg: #fef3e2;
+
+  --color-hover: rgba(15, 23, 42, 0.035);
+}
+
+// Contrapartida escura de cada token acima — mesmos nomes, valores ajustados
+// para contraste em fundos escuros (textos e cores semânticas mais claras,
+// sombras recalculadas em preto puro porque uma sombra em `rgba(15,23,42,…)`
+// fica invisível sobre uma superfície que já é dessa cor).
+@mixin tokens-tema-escuro {
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.28);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.36), 0 1px 2px rgba(0, 0, 0, 0.24);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.5);
+
+  --color-bg-page: #10151f;
+  --color-surface: #1b2330;
+
+  --color-text-primary: #e8ecf3;
+  --color-text-secondary: rgba(232, 236, 243, 0.66);
+  --color-text-muted: rgba(232, 236, 243, 0.46);
+
+  --color-border: rgba(255, 255, 255, 0.1);
+
+  --color-success: #4ade80;
+  --color-success-bg: rgba(74, 222, 128, 0.14);
+  --color-success-border: rgba(74, 222, 128, 0.3);
+
+  --color-danger: #f87171;
+  --color-danger-bg: rgba(248, 113, 113, 0.16);
+  --color-danger-border: rgba(248, 113, 113, 0.34);
+
+  --color-info: #7aa2f7;
+  --color-info-bg: rgba(122, 162, 247, 0.16);
+
+  --color-accent: #fbbf68;
+  --color-accent-bg: rgba(251, 191, 104, 0.16);
+
+  --color-hover: rgba(255, 255, 255, 0.06);
+}
+
+// `& { }` porque as declarações soltas vêm depois da regra aninhada gerada
+// por `@include mat.theme(...)` — sem isso o Sass emite o warning de
+// depreciação "mixed-decls".
 html {
   color-scheme: light;
-  @include mat.theme(
-    (
-      color: (
-        theme-type: light,
-        primary: mat.$azure-palette,
-        tertiary: mat.$orange-palette,
-      ),
-      typography: Roboto,
-      density: 0,
-    )
-  );
+  @include mat.theme($tema-claro);
 
-  // Tokens de design compartilhados por toda a aplicação — espaçamento,
-  // raio de borda, sombras e cores semânticas (sucesso/alerta/perigo/neutro).
-  // Mantidos como custom properties para reaproveitar em qualquer .scss de
-  // componente sem duplicar valores mágicos.
-  // Agrupadas em `& { }` porque vêm depois da regra aninhada gerada pelo
-  // `@include mat.theme(...)` acima — sem isso o Sass emite o warning de
-  // depreciação "mixed-decls" (declarações soltas após regra aninhada).
   & {
-    --radius-sm: 8px;
-    --radius-md: 12px;
-    --radius-lg: 16px;
+    @include tokens-tema-claro;
+  }
+}
 
-    --shadow-xs: 0 1px 2px rgba(15, 23, 42, 0.05);
-    --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
-    --shadow-md: 0 4px 14px rgba(15, 23, 42, 0.08);
+// Escolha explícita do usuário (toggle sol/lua no topbar, ThemeService) —
+// sempre vence, inclusive contra a preferência do sistema abaixo, porque o
+// seletor de atributo tem a mesma especificidade mas vem depois no arquivo
+// (e o JS só grava o atributo quando existe escolha salva em localStorage).
+html[data-theme='dark'] {
+  color-scheme: dark;
+  @include mat.theme($tema-escuro);
 
-    --color-text-primary: #1f2733;
-    --color-text-secondary: rgba(31, 39, 51, 0.62);
-    --color-text-muted: rgba(31, 39, 51, 0.45);
+  & {
+    @include tokens-tema-escuro;
+  }
+}
 
-    --color-border: rgba(15, 23, 42, 0.08);
+// Sem escolha explícita salva (nenhum data-theme no <html>), o tema segue a
+// preferência do sistema operacional/navegador.
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme='light']) {
+    color-scheme: dark;
+    @include mat.theme($tema-escuro);
 
-    --color-success: #1a7f47;
-    --color-success-bg: #e9f7ef;
-    --color-success-border: rgba(26, 127, 71, 0.22);
-
-    --color-danger: #c62828;
-    --color-danger-bg: #fdecea;
-    --color-danger-border: rgba(198, 40, 40, 0.22);
-
-    --color-info: #2f5fd0;
-    --color-info-bg: #eaf0fd;
-
-    --color-accent: #b45309;
-    --color-accent-bg: #fef3e2;
-
-    --color-hover: rgba(15, 23, 42, 0.035);
+    & {
+      @include tokens-tema-escuro;
+    }
   }
 }
 
@@ -59,8 +138,9 @@ body {
   height: 100%;
   margin: 0;
   font-family: Roboto, 'Helvetica Neue', Arial, sans-serif;
-  background: #f4f6fb;
+  background: var(--color-bg-page);
   color: var(--color-text-primary);
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 * {

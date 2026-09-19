@@ -5,7 +5,7 @@
 
 .app-shell {
   height: 100%;
-  background: #f4f6fb;
+  background: var(--color-bg-page);
 }
 
 .app-sidenav {
@@ -113,10 +113,14 @@
   top: 0;
   z-index: 5;
   height: 64px;
-  background: #fff;
+  background: var(--color-surface);
   color: var(--color-text-primary);
   border-bottom: 1px solid var(--color-border);
   box-shadow: var(--shadow-xs);
+}
+
+.topbar-spacer {
+  flex: 1 1 auto;
 }
 
 .topbar-title {

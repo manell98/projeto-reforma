@@ -12,13 +12,13 @@
     <mat-card-content>
       <apx-chart
         [series]="valorSeries()"
-        [chart]="donutChart"
+        [chart]="donutChart()"
         [labels]="rotulos"
         [colors]="cores"
-        [legend]="legendBottom"
-        [tooltip]="tooltipMoeda"
+        [legend]="legendBottom()"
+        [tooltip]="tooltipMoeda()"
         [dataLabels]="dataLabelsOff"
-        [noData]="noData"
+        [noData]="noData()"
       />
     </mat-card-content>
   </mat-card>
@@ -30,15 +30,15 @@
     <mat-card-content>
       <apx-chart
         [series]="quantidadeSeries()"
-        [chart]="barChart"
-        [xaxis]="xaxisFormas"
-        [yaxis]="yaxisComTexto"
+        [chart]="barChart()"
+        [xaxis]="xaxisFormas()"
+        [yaxis]="yaxisComTexto()"
         [colors]="cores"
         [plotOptions]="plotOptionsBar"
         [dataLabels]="dataLabelsOff"
-        [tooltip]="tooltipQuantidade"
+        [tooltip]="tooltipQuantidade()"
         [legend]="legendHidden"
-        [noData]="noData"
+        [noData]="noData()"
       />
     </mat-card-content>
   </mat-card>
@@ -50,15 +50,15 @@
     <mat-card-content>
       <apx-chart
         [series]="parcelamentoSeries()"
-        [chart]="barChart"
+        [chart]="barChart()"
         [xaxis]="xaxisParcelamento()"
-        [yaxis]="yaxisComTexto"
+        [yaxis]="yaxisComTexto()"
         [colors]="cores"
         [plotOptions]="plotOptionsBar"
         [dataLabels]="dataLabelsOff"
-        [tooltip]="tooltipQuantidade"
+        [tooltip]="tooltipQuantidade()"
         [legend]="legendHidden"
-        [noData]="noData"
+        [noData]="noData()"
       />
     </mat-card-content>
   </mat-card>
