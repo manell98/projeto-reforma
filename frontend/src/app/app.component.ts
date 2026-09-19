@@ -8,6 +8,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { map } from 'rxjs';
 import { ExpenseStoreService } from './core/state/expense-store.service';
+import { ThemeService } from './core/services/theme.service';
 
 @Component({
   selector: 'app-root',
@@ -28,6 +29,7 @@ import { ExpenseStoreService } from './core/state/expense-store.service';
 export class AppComponent implements OnInit {
   private readonly store = inject(ExpenseStoreService);
   private readonly breakpointObserver = inject(BreakpointObserver);
+  readonly tema = inject(ThemeService);
 
   readonly modoOverlay = signal(false);
   readonly sidenavAberta = signal(true);

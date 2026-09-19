@@ -83,6 +83,15 @@
         <mat-icon>menu</mat-icon>
       </button>
       <span class="topbar-title">Controle de Gastos da Reforma</span>
+      <span class="topbar-spacer"></span>
+      <button
+        mat-icon-button
+        (click)="tema.alternar()"
+        [attr.aria-label]="tema.escuro() ? 'Mudar para tema claro' : 'Mudar para tema escuro'"
+        [title]="tema.escuro() ? 'Mudar para tema claro' : 'Mudar para tema escuro'"
+      >
+        <mat-icon>{{ tema.escuro() ? 'light_mode' : 'dark_mode' }}</mat-icon>
+      </button>
     </mat-toolbar>
 
     <main class="app-content">

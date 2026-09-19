@@ -12,13 +12,13 @@
     <mat-card-content>
       <apx-chart
         [series]="distribuicaoSeries()"
-        [chart]="donutChart"
+        [chart]="donutChart()"
         [labels]="distribuicaoLabels()"
         [colors]="cores"
-        [legend]="legendBottom"
-        [tooltip]="tooltipMoeda"
+        [legend]="legendBottom()"
+        [tooltip]="tooltipMoeda()"
         [dataLabels]="dataLabelsOff"
-        [noData]="noData"
+        [noData]="noData()"
       />
     </mat-card-content>
   </mat-card>
@@ -30,15 +30,15 @@
     <mat-card-content>
       <apx-chart
         [series]="rankingSeries()"
-        [chart]="barChart"
+        [chart]="barChart()"
         [xaxis]="xaxisRanking()"
-        [yaxis]="yaxisComTexto"
+        [yaxis]="yaxisComTexto()"
         [colors]="cores"
         [plotOptions]="plotOptionsBarHorizontal"
-        [dataLabels]="dataLabelsBar"
-        [tooltip]="tooltipMoeda"
+        [dataLabels]="dataLabelsBar()"
+        [tooltip]="tooltipMoeda()"
         [legend]="legendHidden"
-        [noData]="noData"
+        [noData]="noData()"
       />
     </mat-card-content>
   </mat-card>
@@ -50,15 +50,15 @@
     <mat-card-content>
       <apx-chart
         [series]="evolucaoSeries()"
-        [chart]="lineChart"
+        [chart]="lineChart()"
         [xaxis]="xaxisEvolucao()"
-        [yaxis]="yaxisEvolucaoComMoeda"
+        [yaxis]="yaxisEvolucaoComMoeda()"
         [colors]="cores"
         [stroke]="strokeLine"
         [fill]="fillGradient"
         [dataLabels]="dataLabelsOff"
-        [tooltip]="tooltipMoeda"
-        [noData]="noData"
+        [tooltip]="tooltipMoeda()"
+        [noData]="noData()"
       />
     </mat-card-content>
   </mat-card>
