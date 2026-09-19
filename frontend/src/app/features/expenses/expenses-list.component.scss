@@ -10,6 +10,13 @@ button {
   gap: 4px;
 }
 
+.page-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
 // Card de destaque do total gasto — mesma linguagem visual dos cards de
 // orçamento (icon-badge + metric hero), com uma borda de acento e leve
 // tingimento de fundo para chamar mais atenção que um mat-card comum, já

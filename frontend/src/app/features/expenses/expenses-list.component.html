@@ -8,10 +8,16 @@
       <p class="page-subtitle">Cadastre, edite e acompanhe os gastos da reforma</p>
     </div>
   </div>
-  <button mat-flat-button color="primary" (click)="novaDespesa()">
-    <mat-icon>add</mat-icon>
-    Adicionar despesa
-  </button>
+  <div class="page-header-actions">
+    <button mat-stroked-button (click)="exportarDespesasCsv()">
+      <mat-icon>file_download</mat-icon>
+      Exportar CSV
+    </button>
+    <button mat-flat-button color="primary" (click)="novaDespesa()">
+      <mat-icon>add</mat-icon>
+      Adicionar despesa
+    </button>
+  </div>
 </div>
 
 <mat-card class="total-card">
