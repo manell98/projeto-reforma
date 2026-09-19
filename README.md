@@ -54,6 +54,15 @@ npm start
 
 - Aplicação: http://localhost:4200
 
+### 4. Acessar do celular (mesma rede wifi)
+
+Com o `npm run dev` (ou os passos 2 e 3) rodando no PC, dá pra abrir o app em qualquer celular/tablet conectado à mesma wifi:
+
+1. Descubra o IP local do PC: no Windows, `ipconfig` e procure o "Endereço IPv4" do adaptador de rede ativo (algo como `192.168.0.10`).
+2. No navegador do celular, abra `http://<IP-DO-PC>:4200` (ex: `http://192.168.0.10:4200`).
+
+O frontend detecta o host de onde foi carregado e aponta as chamadas de API para esse mesmo host na porta 3000, e o backend libera CORS para qualquer IP de rede privada — nenhuma configuração extra é necessária. Isso só funciona na mesma rede local; não expõe o app para a internet.
+
 ## Funcionalidades
 
 - **Dashboard** (`/dashboard`, tela inicial): visão geral somente leitura — indicador de orçamento geral (orçamento inicial, total comprometido, total gasto, saldo, % consumido, com aviso visual quando o orçamento é excedido), painéis de Pedreiro/Eletricista/Tio Neguinho (responsável pela obra), card de duração da obra, cards (quantidade de despesas, maior despesa, categoria que mais consumiu) e gráficos (distribuição por categoria, ranking de categorias, evolução mensal, últimas despesas). Sem formulário de cadastro.

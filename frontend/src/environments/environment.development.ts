@@ -1,4 +1,5 @@
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:3000',
+  // Ver comentário em environment.ts sobre a derivação dinâmica do host.
+  apiUrl: `${window.location.protocol}//${window.location.hostname}:3000`,
 };
