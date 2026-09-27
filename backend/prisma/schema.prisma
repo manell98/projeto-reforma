@@ -125,6 +125,13 @@ model RegistroObra {
   dataCaptura       DateTime          @db.Date
   origemDataCaptura OrigemDataCaptura
 
+  // Posição manual dentro do álbum do dia (arrastar-e-soltar), 0-based.
+  // `null` = nunca reordenado manualmente, usa a ordem natural (dataCaptura +
+  // createdAt). Sempre que o usuário reordena um dia, TODOS os registros
+  // daquele dia recebem `ordem` de uma vez (ver EvolucaoService.reordenar) —
+  // nunca fica um dia com mistura de itens com/sem ordem manual.
+  ordem Int?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

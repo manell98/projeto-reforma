@@ -11,6 +11,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateRegistroObraDto } from './dto/create-registro-obra.dto';
 import { UpdateRegistroObraDto } from './dto/update-registro-obra.dto';
 import { FilterRegistrosObraDto } from './dto/filter-registros-obra.dto';
+import { ReordenarRegistrosObraDto } from './dto/reordenar-registros-obra.dto';
 import {
   MIDIAS_SUPORTADAS,
   SUBDIRETORIO_EVOLUCAO,
@@ -148,6 +149,41 @@ export class EvolucaoService {
     return this.serialize(registro);
   }
 
+  /**
+   * Grava a nova ordem manual de um álbum (dia) inteiro: `ids` precisa ser a
+   * lista COMPLETA dos registros daquele dia, na ordem desejada — atribui
+   * `ordem = índice` a cada um, sempre todos de uma vez, numa transação
+   * (tudo ou nada). Falha com NotFound se algum id não existir, sem gravar
+   * nada parcialmente.
+   */
+  async reordenar(
+    dto: ReordenarRegistrosObraDto,
+  ): Promise<SerializedRegistroObra[]> {
+    const existentes = await this.prisma.registroObra.findMany({
+      where: { id: { in: dto.ids } },
+      select: { id: true },
+    });
+    if (existentes.length !== dto.ids.length) {
+      const encontrados = new Set(existentes.map((r) => r.id));
+      const faltando = dto.ids.filter((id) => !encontrados.has(id));
+      throw new NotFoundException(
+        `Registro(s) não encontrado(s): ${faltando.join(', ')}`,
+      );
+    }
+
+    await this.prisma.$transaction(
+      dto.ids.map((id, ordem) =>
+        this.prisma.registroObra.update({ where: { id }, data: { ordem } }),
+      ),
+    );
+
+    const registros = await this.prisma.registroObra.findMany({
+      where: { id: { in: dto.ids } },
+      orderBy: { ordem: 'asc' },
+    });
+    return registros.map((registro) => this.serialize(registro));
+  }
+
   async remover(id: string): Promise<void> {
     const registro = await this.buscar(id);
     await this.prisma.registroObra.delete({ where: { id } });
@@ -186,6 +222,7 @@ export class EvolucaoService {
       mimeType: registro.mimeType,
       tamanhoBytes: registro.tamanhoBytes,
       origemDataCaptura: registro.origemDataCaptura,
+      ordem: registro.ordem,
       dataCaptura: registro.dataCaptura.toISOString(),
       createdAt: registro.createdAt.toISOString(),
       updatedAt: registro.updatedAt.toISOString(),

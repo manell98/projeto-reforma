@@ -15,6 +15,12 @@ export interface RegistroObra {
   /** Quando a foto/vídeo foi tirada — data de calendário (UTC-meia-noite). */
   dataCaptura: string;
   origemDataCaptura: OrigemDataCaptura;
+  /**
+   * Posição manual (arrastar-e-soltar) dentro do álbum do dia. `null` =
+   * nunca reordenado manualmente, usa a ordem natural (ver
+   * `EvolucaoStoreService.porDia`).
+   */
+  ordem: number | null;
   /** Caminho do arquivo na API, relativo à apiUrl. */
   url: string;
   /** Instante do upload — timestamp real, exibido em horário local. */
