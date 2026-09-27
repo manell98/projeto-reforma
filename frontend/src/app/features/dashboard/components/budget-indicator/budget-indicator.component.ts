@@ -29,8 +29,4 @@ export class BudgetIndicatorComponent {
   );
 
   readonly valorExcedente = computed(() => Math.abs(this.store.saldo()));
-
-  readonly percentualArredondado = computed(() =>
-    Math.round(this.store.percentualConsumido()),
-  );
 }

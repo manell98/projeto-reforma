@@ -105,8 +105,8 @@
         <div class="budget-alert aviso">
           <mat-icon>warning</mat-icon>
           <span
-            >Atenção: {{ percentualArredondado() }}% do orçamento já foi
-            consumido.</span
+            >Atenção: {{ store.percentualConsumido() | number: '1.0-1' }}% do
+            orçamento já foi consumido.</span
           >
         </div>
       }

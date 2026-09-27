@@ -65,9 +65,6 @@ export class OrcamentoEspecificoPanelComponent {
     Math.min(this.percentualConsumido(), 100),
   );
   readonly valorExcedente = computed(() => Math.abs(this.saldo()));
-  readonly percentualArredondado = computed(() =>
-    Math.round(this.percentualConsumido()),
-  );
 
   readonly formOrcamento = this.fb.nonNullable.group({
     valor: [null as number | null, [Validators.required, Validators.min(0)]],
