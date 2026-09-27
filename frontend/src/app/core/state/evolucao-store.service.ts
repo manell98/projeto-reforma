@@ -51,9 +51,22 @@ export class EvolucaoStoreService {
       agrupado.set(dia, doDia);
     }
     return Array.from(agrupado.entries())
-      .map(([data, registros]) => ({ data, registros }))
+      .map(([data, registros]) => ({ data, registros: this.ordenarDia(registros) }))
       .sort((a, b) => b.data.localeCompare(a.data));
   });
+
+  // Dentro de um dia, respeita a ordem manual (arrastar-e-soltar) quando ela
+  // existe. `reordenarDia` sempre grava `ordem` em TODOS os registros do dia
+  // de uma vez (nunca só nos que mudaram de posição), então um dia nunca
+  // fica com mistura de itens com/sem ordem manual: ou todos têm `ordem`
+  // (já foi reordenado alguma vez), ou nenhum tem (usa o fallback natural).
+  private ordenarDia(registros: RegistroObra[]): RegistroObra[] {
+    const temOrdemManual = registros.some((r) => r.ordem !== null);
+    if (temOrdemManual) {
+      return [...registros].sort((a, b) => (a.ordem ?? 0) - (b.ordem ?? 0));
+    }
+    return [...registros].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  }
 
   readonly total = computed(() => this._registros().length);
 
@@ -117,6 +130,26 @@ export class EvolucaoStoreService {
 
   remover(id: string) {
     return this.evolucaoService.remover(id);
+  }
+
+  /**
+   * Grava a nova ordem manual de um álbum (arrastar-e-soltar) — `ids` é a
+   * lista COMPLETA dos registros daquele dia, na nova ordem. Aplica a ordem
+   * localmente na hora (otimista, sem esperar a resposta do servidor: soltar
+   * o item já reflete na tela) e dispara a chamada; se ela falhar, quem
+   * chama decide como recuperar (ex.: `carregar()` de novo) — o método não
+   * reverte sozinho porque nesse ponto o usuário já viu o resultado.
+   */
+  reordenarDia(ids: string[]): Observable<RegistroObra[]> {
+    const posicaoPorId = new Map(ids.map((id, indice) => [id, indice]));
+    this._registros.update((atual) =>
+      atual.map((registro) =>
+        posicaoPorId.has(registro.id)
+          ? { ...registro, ordem: posicaoPorId.get(registro.id)! }
+          : registro,
+      ),
+    );
+    return this.evolucaoService.reordenar(ids);
   }
 
   urlArquivo(registro: RegistroObra): string {

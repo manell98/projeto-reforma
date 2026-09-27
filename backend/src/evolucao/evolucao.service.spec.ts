@@ -19,6 +19,7 @@ const prismaMock = {
     update: jest.fn(),
     delete: jest.fn(),
   },
+  $transaction: jest.fn(),
 };
 
 const registroFake: RegistroObra = {
@@ -32,6 +33,7 @@ const registroFake: RegistroObra = {
   tamanhoBytes: 1024,
   dataCaptura: new Date('2026-08-15T00:00:00.000Z'),
   origemDataCaptura: OrigemDataCaptura.EXIF,
+  ordem: null,
   createdAt: new Date('2026-08-20T13:45:00.000Z'),
   updatedAt: new Date('2026-08-20T13:45:00.000Z'),
 };
@@ -192,5 +194,59 @@ describe('EvolucaoService', () => {
     await expect(service.obterUm('nao-existe')).rejects.toBeInstanceOf(
       NotFoundException,
     );
+  });
+
+  describe('reordenar', () => {
+    const registro2: RegistroObra = {
+      ...registroFake,
+      id: 'reg-2',
+      ordem: null,
+    };
+
+    it('grava ordem = índice na posição de cada id, numa única transação', async () => {
+      prismaMock.registroObra.findMany
+        // 1ª chamada: valida que os dois ids existem.
+        .mockResolvedValueOnce([{ id: 'reg-1' }, { id: 'reg-2' }])
+        // 2ª chamada: busca os registros já atualizados, para a resposta —
+        // já retornando na ordem que o `orderBy: { ordem: 'asc' }` real do
+        // Prisma devolveria (o mock não executa orderBy de verdade).
+        .mockResolvedValueOnce([
+          { ...registroFake, ordem: 0 },
+          { ...registro2, ordem: 1 },
+        ]);
+      prismaMock.$transaction.mockResolvedValue(undefined);
+      prismaMock.registroObra.update.mockReturnValue('promise-de-update-fake');
+
+      const resultado = await service.reordenar({ ids: ['reg-1', 'reg-2'] });
+
+      expect(prismaMock.registroObra.update).toHaveBeenNthCalledWith(1, {
+        where: { id: 'reg-1' },
+        data: { ordem: 0 },
+      });
+      expect(prismaMock.registroObra.update).toHaveBeenNthCalledWith(2, {
+        where: { id: 'reg-2' },
+        data: { ordem: 1 },
+      });
+      expect(prismaMock.$transaction).toHaveBeenCalledWith([
+        'promise-de-update-fake',
+        'promise-de-update-fake',
+      ]);
+      expect(prismaMock.registroObra.findMany).toHaveBeenLastCalledWith({
+        where: { id: { in: ['reg-1', 'reg-2'] } },
+        orderBy: { ordem: 'asc' },
+      });
+      expect(resultado.map((r) => r.id)).toEqual(['reg-1', 'reg-2']);
+    });
+
+    it('não grava nada (nem chama a transação) se algum id não existir', async () => {
+      prismaMock.registroObra.findMany.mockResolvedValueOnce([{ id: 'reg-1' }]);
+
+      await expect(
+        service.reordenar({ ids: ['reg-1', 'nao-existe'] }),
+      ).rejects.toBeInstanceOf(NotFoundException);
+
+      expect(prismaMock.$transaction).not.toHaveBeenCalled();
+      expect(prismaMock.registroObra.update).not.toHaveBeenCalled();
+    });
   });
 });

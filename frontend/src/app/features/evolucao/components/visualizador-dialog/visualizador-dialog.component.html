@@ -1,5 +1,5 @@
 <div class="visualizador">
-  <div class="palco">
+  <div class="palco" #palco [class.em-fullscreen]="estaFullscreen()">
     @if (registro().tipo === 'VIDEO') {
       <video [src]="url()" controls autoplay preload="metadata"></video>
     } @else {
@@ -12,8 +12,6 @@
     </span>
 
     @if (temMultiplos) {
-      <span class="posicao-chip">{{ posicaoLabel() }}</span>
-
       <button
         mat-icon-button
         class="navegar anterior"
@@ -37,15 +35,36 @@
       </button>
     }
 
-    <button
-      mat-icon-button
-      class="fechar"
-      aria-label="Fechar"
-      matTooltip="Fechar"
-      (click)="dialogRef.close()"
-    >
-      <mat-icon>close</mat-icon>
-    </button>
+    <!-- Um único container flex pros controles do canto superior direito, em
+         vez de cada botão com sua própria posição absoluta: assim a posição
+         de um nunca precisa "adivinhar" a largura variável dos outros. -->
+    <div class="controles-topo">
+      @if (temMultiplos) {
+        <span class="posicao-chip">{{ posicaoLabel() }}</span>
+      }
+
+      @if (suportaFullscreen) {
+        <button
+          mat-icon-button
+          class="botao-topo"
+          [attr.aria-label]="estaFullscreen() ? 'Sair da tela cheia' : 'Ver em tela cheia'"
+          [matTooltip]="estaFullscreen() ? 'Sair da tela cheia' : 'Tela cheia'"
+          (click)="alternarFullscreen()"
+        >
+          <mat-icon>{{ estaFullscreen() ? 'fullscreen_exit' : 'fullscreen' }}</mat-icon>
+        </button>
+      }
+
+      <button
+        mat-icon-button
+        class="botao-topo"
+        aria-label="Fechar"
+        matTooltip="Fechar"
+        (click)="dialogRef.close()"
+      >
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
   </div>
 
   <div class="detalhes">

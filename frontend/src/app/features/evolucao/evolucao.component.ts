@@ -1,12 +1,17 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
+import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { EvolucaoStoreService } from '../../core/state/evolucao-store.service';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import {
+  DiaDeRegistros,
+  EvolucaoStoreService,
+} from '../../core/state/evolucao-store.service';
 import { RegistroObra } from '../../core/models/registro-obra.model';
 import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog.component';
 import { RegistroCardComponent } from './components/registro-card/registro-card.component';
@@ -25,10 +30,12 @@ import {
   standalone: true,
   imports: [
     CommonModule,
+    DragDropModule,
     MatButtonModule,
     MatCardModule,
     MatIconModule,
     MatProgressSpinnerModule,
+    MatTooltipModule,
     RegistroCardComponent,
   ],
   templateUrl: './evolucao.component.html',
@@ -66,6 +73,28 @@ export class EvolucaoComponent implements OnInit {
     });
   }
 
+  // Arrastar-e-soltar reordena só DENTRO do dia (cada dia tem sua própria
+  // cdkDropList, não conectadas entre si — ver template). Otimista: a store
+  // já reflete a nova posição na hora; se a chamada falhar, recarrega para
+  // voltar ao estado real do servidor em vez de deixar a tela mentindo.
+  arrastar(dia: DiaDeRegistros, evento: CdkDragDrop<RegistroObra[]>): void {
+    if (evento.previousIndex === evento.currentIndex) return;
+
+    const novaOrdem = [...dia.registros];
+    moveItemInArray(novaOrdem, evento.previousIndex, evento.currentIndex);
+
+    this.store.reordenarDia(novaOrdem.map((r) => r.id)).subscribe({
+      error: () => {
+        this.snackBar.open(
+          'Não foi possível salvar a nova ordem. Atualizando a lista...',
+          'Fechar',
+          { duration: 4000 },
+        );
+        this.store.carregar();
+      },
+    });
+  }
+
   novoRegistro(): void {
     this.abrirFormulario(null);
   }
@@ -85,7 +114,11 @@ export class EvolucaoComponent implements OnInit {
         data: { registros, indiceInicial: Math.max(0, indiceInicial) },
         panelClass: 'visualizador-panel',
         backdropClass: 'visualizador-backdrop',
-        maxWidth: '92vw',
+        // Mais imersivo que antes por padrão (era 92vw sem limite de altura);
+        // o botão de tela cheia dentro do diálogo cobre o resto do pedido de
+        // "tela cheia de verdade", usando a Fullscreen API do navegador.
+        maxWidth: '97vw',
+        maxHeight: '95vh',
       },
     );
   }

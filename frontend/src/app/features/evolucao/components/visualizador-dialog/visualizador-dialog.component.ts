@@ -1,5 +1,14 @@
 import { CommonModule } from '@angular/common';
-import { Component, HostListener, computed, inject, signal } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  HostListener,
+  OnDestroy,
+  ViewChild,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import {
   MAT_DIALOG_DATA,
@@ -33,10 +42,20 @@ export interface VisualizadorDialogData {
   templateUrl: './visualizador-dialog.component.html',
   styleUrl: './visualizador-dialog.component.scss',
 })
-export class VisualizadorDialogComponent {
+export class VisualizadorDialogComponent implements OnDestroy {
   private readonly store = inject(EvolucaoStoreService);
   readonly dialogRef = inject(MatDialogRef<VisualizadorDialogComponent>);
   readonly data = inject<VisualizadorDialogData>(MAT_DIALOG_DATA);
+
+  @ViewChild('palco') private readonly palco?: ElementRef<HTMLElement>;
+
+  // Alguns navegadores móveis (Safari < 16.4) não implementam a Fullscreen
+  // API em elementos arbitrários — o botão simplesmente não aparece nesses
+  // casos, em vez de existir e não fazer nada ao ser clicado.
+  readonly suportaFullscreen =
+    typeof document !== 'undefined' && !!document.fullscreenEnabled;
+
+  readonly estaFullscreen = signal(false);
 
   private readonly indiceAtual = signal(this.data.indiceInicial);
 
@@ -69,6 +88,37 @@ export class VisualizadorDialogComponent {
   anterior(): void {
     if (this.temAnterior()) {
       this.indiceAtual.update((indice) => indice - 1);
+    }
+  }
+
+  // Mantém `estaFullscreen` correto mesmo quando o usuário sai da tela cheia
+  // pelo Esc do navegador (que o próprio navegador intercepta antes do Esc
+  // chegar a fechar o diálogo) em vez de pelo nosso botão.
+  @HostListener('document:fullscreenchange')
+  aoMudarFullscreen(): void {
+    this.estaFullscreen.set(document.fullscreenElement === this.palco?.nativeElement);
+  }
+
+  alternarFullscreen(): void {
+    if (!this.palco) return;
+    if (document.fullscreenElement) {
+      document.exitFullscreen();
+    } else {
+      this.palco.nativeElement.requestFullscreen().catch(() => {
+        // Alguns navegadores recusam sem gesto do usuário "fresco" o
+        // suficiente ou por outra restrição — não há nada útil a fazer além
+        // de deixar o botão como estava; `estaFullscreen` só muda de fato
+        // via `fullscreenchange`, então nunca fica "mentindo" no estado.
+      });
+    }
+  }
+
+  // Sair do diálogo sem sair da tela cheia deixaria o navegador preso nela
+  // (mostrando o card de detalhes já fechado atrás do vazio) — se fomos nós
+  // que entramos em fullscreen, saímos ao fechar.
+  ngOnDestroy(): void {
+    if (document.fullscreenElement === this.palco?.nativeElement) {
+      document.exitFullscreen();
     }
   }
 }

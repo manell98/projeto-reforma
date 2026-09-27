@@ -184,6 +184,55 @@ button {
   gap: 16px;
 }
 
+// Arrastar-e-soltar dentro do dia. Wrapper por item: a alça (cdkDragHandle)
+// precisa estar no mesmo template do cdkDrag, não dentro de app-registro-card.
+.item-arrastavel {
+  position: relative;
+  min-width: 0;
+}
+
+.alca-arrastar {
+  position: absolute;
+  z-index: 2;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: rgba(15, 23, 42, 0.62);
+  color: #fff;
+  cursor: grab;
+  touch-action: none;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+
+  &:active {
+    cursor: grabbing;
+  }
+}
+
+// Espaço reservado no lugar do item enquanto arrastado; e o item que segue o
+// cursor, por cima de tudo.
+.item-arrastavel-marcador {
+  aspect-ratio: 4 / 3;
+  border: 2px dashed var(--color-info);
+  border-radius: var(--radius-lg);
+  background: var(--color-info-bg);
+}
+
+.cdk-drag-preview {
+  z-index: 10;
+  box-shadow: var(--shadow-md);
+  border-radius: var(--radius-lg);
+}
+
 @keyframes entrar {
   from {
     opacity: 0;

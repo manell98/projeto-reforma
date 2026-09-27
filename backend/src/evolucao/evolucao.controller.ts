@@ -20,6 +20,7 @@ import { EvolucaoService } from './evolucao.service';
 import { CreateRegistroObraDto } from './dto/create-registro-obra.dto';
 import { UpdateRegistroObraDto } from './dto/update-registro-obra.dto';
 import { FilterRegistrosObraDto } from './dto/filter-registros-obra.dto';
+import { ReordenarRegistrosObraDto } from './dto/reordenar-registros-obra.dto';
 import { MIMES_SUPORTADOS } from './midia.constants';
 
 @ApiTags('evolucao')
@@ -75,6 +76,14 @@ export class EvolucaoController {
     @Body() dto: CreateRegistroObraDto,
   ) {
     return this.evolucaoService.criar(arquivo, dto);
+  }
+
+  // Registrado ANTES de 'registros/:id' — do contrário o Express casaria
+  // "ordem" com o parâmetro :id dessa rota (mesmo método HTTP, rotas casadas
+  // na ordem de registro).
+  @Patch('registros/ordem')
+  reordenar(@Body() dto: ReordenarRegistrosObraDto) {
+    return this.evolucaoService.reordenar(dto);
   }
 
   @Patch('registros/:id')

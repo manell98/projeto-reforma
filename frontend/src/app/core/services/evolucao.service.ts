@@ -52,6 +52,14 @@ export class EvolucaoService {
     return this.http.delete<void>(`${this.baseUrl}/${id}`);
   }
 
+  /**
+   * Grava a nova ordem manual (arrastar-e-soltar) de um álbum inteiro — `ids`
+   * precisa ser a lista COMPLETA dos registros daquele dia, na nova ordem.
+   */
+  reordenar(ids: string[]): Observable<RegistroObra[]> {
+    return this.http.patch<RegistroObra[]>(`${this.baseUrl}/ordem`, { ids });
+  }
+
   urlArquivo(registro: RegistroObra): string {
     return `${environment.apiUrl}${registro.url}`;
   }

@@ -138,14 +138,31 @@
           </header>
 
           @if (estaExpandido(dia.data)) {
-            <div class="grade" [id]="'album-' + dia.data">
+            <div
+              class="grade"
+              [id]="'album-' + dia.data"
+              cdkDropList
+              [cdkDropListData]="dia.registros"
+              (cdkDropListDropped)="arrastar(dia, $event)"
+            >
               @for (registro of dia.registros; track registro.id) {
-                <app-registro-card
-                  [registro]="registro"
-                  (abrir)="abrir($event, dia.registros)"
-                  (editar)="editar($event)"
-                  (excluir)="excluir($event)"
-                />
+                <div class="item-arrastavel" cdkDrag [cdkDragData]="registro">
+                  <span
+                    class="alca-arrastar"
+                    cdkDragHandle
+                    matTooltip="Arrastar para reordenar"
+                    aria-label="Arrastar para reordenar"
+                  >
+                    <mat-icon>drag_indicator</mat-icon>
+                  </span>
+                  <div class="item-arrastavel-marcador" *cdkDragPlaceholder></div>
+                  <app-registro-card
+                    [registro]="registro"
+                    (abrir)="abrir($event, dia.registros)"
+                    (editar)="editar($event)"
+                    (excluir)="excluir($event)"
+                  />
+                </div>
               }
             </div>
           } @else {
