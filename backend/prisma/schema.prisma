@@ -16,6 +16,7 @@ enum Categoria {
   ELETRICISTA
   MARCENEIRO
   MARMOREIRO
+  PINTOR
   SERRALHEIRO
   VIDRACEIRO
   LADRILHEIRO
@@ -54,9 +55,9 @@ model Expense {
   @@map("expenses")
 }
 
-// Orçamento geral da reforma e cinco orçamentos específicos (Pedreiro,
-// Eletricista, Tio Neguinho, Marceneiro, Marmoreiro), cada um uma linha única
-// identificada por `tipo`. Os valores destinados aos cinco específicos
+// Orçamento geral da reforma e seis orçamentos específicos (Pedreiro,
+// Eletricista, Tio Neguinho, Marceneiro, Marmoreiro, Pintor), cada um uma linha única
+// identificada por `tipo`. Os valores destinados aos seis específicos
 // representam dinheiro RESERVADO dentro do orçamento geral — não são
 // despesas. Os gastos efetivos de cada um vêm das próprias `Expense` cuja
 // `categoria` bate com o tipo, sem CRUD próprio: ver `ExpensesModule`.
@@ -67,6 +68,7 @@ enum OrcamentoTipo {
   TIO_NEGUINHO
   MARCENEIRO
   MARMOREIRO
+  PINTOR
 }
 
 model Orcamento {
