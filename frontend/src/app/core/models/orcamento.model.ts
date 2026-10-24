@@ -4,7 +4,8 @@ export type OrcamentoTipo =
   | 'ELETRICISTA'
   | 'TIO_NEGUINHO'
   | 'MARCENEIRO'
-  | 'MARMOREIRO';
+  | 'MARMOREIRO'
+  | 'PINTOR';
 
 // Tipos de orçamento que têm um limite específico dentro do orçamento geral.
 // Os gastos de cada um vêm das próprias despesas (categoria === tipo) — não
@@ -14,7 +15,8 @@ export type TipoOrcamentoEspecifico =
   | 'ELETRICISTA'
   | 'TIO_NEGUINHO'
   | 'MARCENEIRO'
-  | 'MARMOREIRO';
+  | 'MARMOREIRO'
+  | 'PINTOR';
 
 export interface Orcamento {
   tipo: OrcamentoTipo;

@@ -7,6 +7,7 @@ export const CATEGORIA_LABELS: Record<Categoria, string> = {
   [Categoria.ELETRICISTA]: 'Eletricista',
   [Categoria.MARCENEIRO]: 'Marceneiro',
   [Categoria.MARMOREIRO]: 'Marmoreiro',
+  [Categoria.PINTOR]: 'Pintor',
   [Categoria.SERRALHEIRO]: 'Serralheiro',
   [Categoria.VIDRACEIRO]: 'Vidraceiro',
   [Categoria.LADRILHEIRO]: 'Ladrilheiro',

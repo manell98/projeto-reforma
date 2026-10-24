@@ -5,6 +5,7 @@ export type Categoria =
   | 'ELETRICISTA'
   | 'MARCENEIRO'
   | 'MARMOREIRO'
+  | 'PINTOR'
   | 'SERRALHEIRO'
   | 'VIDRACEIRO'
   | 'LADRILHEIRO'

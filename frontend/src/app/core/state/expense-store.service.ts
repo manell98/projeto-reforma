@@ -51,11 +51,12 @@ const ORCAMENTOS_VAZIOS: Record<OrcamentoTipo, number> = {
   TIO_NEGUINHO: 0,
   MARCENEIRO: 0,
   MARMOREIRO: 0,
+  PINTOR: 0,
 };
 
-// Os cinco tipos com orçamento específico têm o MESMO valor de string que a
+// Os seis tipos com orçamento específico têm o MESMO valor de string que a
 // Categoria correspondente ('PEDREIRO', 'ELETRICISTA', 'TIO_NEGUINHO',
-// 'MARCENEIRO', 'MARMOREIRO') — por isso o gasto de cada um pode ser derivado
+// 'MARCENEIRO', 'MARMOREIRO', 'PINTOR') — por isso o gasto de cada um pode ser derivado
 // diretamente das despesas filtrando por categoria, sem precisar de nenhuma
 // tabela/CRUD à parte.
 const TIPOS_ORCAMENTO_ESPECIFICO: TipoOrcamentoEspecifico[] = [
@@ -64,6 +65,7 @@ const TIPOS_ORCAMENTO_ESPECIFICO: TipoOrcamentoEspecifico[] = [
   'TIO_NEGUINHO',
   'MARCENEIRO',
   'MARMOREIRO',
+  'PINTOR',
 ];
 
 @Injectable({ providedIn: 'root' })
